@@ -23,6 +23,7 @@ select{width:100%;background:var(--bg);color:var(--fg);border:1px solid var(--li
 ul{margin:6px 0 0;padding-left:18px}.src{color:var(--dim);font-size:14.5px}.chip{display:inline-block;border:1px solid var(--line);border-radius:12px;padding:1px 9px;margin:2px 4px 2px 0;font-size:14px}.chip.w{border-color:var(--warn);color:var(--warn)}.chip.g{color:var(--dim)}table.m td:not(:first-child){font-variant-numeric:tabular-nums}
 @media(max-width:820px){#top{flex-direction:column;height:auto}#stage{height:56vh}#side{width:auto;border-left:0;border-top:1px solid var(--line)}.two{grid-template-columns:1fr}}
 @media print{#map{display:none}#stage{height:auto}}
+.mx{border-collapse:collapse;margin:6px 0 4px;font-size:15px}.mx th,.mx td{border:1px solid var(--line);padding:3px 10px;text-align:center}.mx th{color:var(--dim);font-weight:400}.mx .on{outline:2px solid var(--hi);outline-offset:-2px;font-weight:700}
 </style></head><body>
 <div id="top"><div id="stage"><div id="map"></div></div>
 <div id="side">
@@ -31,7 +32,9 @@ ul{margin:6px 0 0;padding-left:18px}.src{color:var(--dim);font-size:14.5px}.chip
 <div class="banner">区の公式推計ではありません。道路網の形と仮定にもとづく簡易な比較です（仮定による例示）。信号の待ち時間・歩行者・バス・工事中の交通は計算に入れていません（信号の位置は地図に表示）。</div>
 <h2>表示するシナリオ</h2>
 <div class="btns" id="sc"></div>
-<div class="leg" style="margin-top:6px"><label><input type="checkbox" id="cmp" checked> 比較表示（主比較：S3 と S2）</label></div>
+<table class="mx"><tr><th></th><th>補50なし</th><th>補50あり</th></tr><tr><th>再開発前</th><td>S0 現況</td><td>S1</td></tr><tr><th>再開発後</th><td class="on">S2</td><td class="on">S3</td></tr></table>
+<div class="leg">シナリオは「補50があるか」と「再開発が終わったか」の組み合わせです。<b>主に比べるのは S2 と S3</b>。どちらも再開発後で、違いは補50の有無だけなので、差がそのまま補50の効果になります。<br>再開発後（S2・S3）は、素案の交通計画どおり、さくら坂（区道1032号）を廃止し、区道432号を相互通行に、448号を西向き一方通行にしています。再開発で増える車も加えています。S3では、補50のうち再開発の敷地（A街区）を通る部分は道路に入れていません。</div>
+<div class="leg" style="margin-top:6px"><label><input type="checkbox" id="cmp" checked> 比較表示（S2 と S3 を重ねる）</label></div>
 <h2>地図に重ねる道路の情報</h2>
 <div class="leg" id="lay"><label><input type="checkbox" id="l-ln" checked> 片側車線数（太さ。青＝OSMに車線数の記載あり／灰＝道路種別からの推定）</label><br>
 <label><input type="checkbox" id="l-ow" checked> 一方通行（矢印）</label><br>
@@ -49,7 +52,7 @@ ul{margin:6px 0 0;padding-left:18px}.src{color:var(--dim);font-size:14.5px}.chip
 </div></div>
 <div id="below">
 <div class="card"><h2>全ての起終点の比較（ターンコスト込みの所要秒／右折回数）</h2><div style="overflow-x:auto"><table id="tbl"></table></div>
-<p class="src">S1＝補50のみ／S2＝再開発竣工後（補50なし。素案の交通計画どおり、さくら坂〔区道1032号〕を廃止し、区道432号を相互通行に）／S3＝補50＋再開発（補50のうちA街区の敷地を貫く部分は道路としては削除）。区道448号は西向き一方通行に統一。1031・1078の整序・拡幅は反映していません。主な比較は「補50の有無」（S3対S2）です。起終点の6組は計算の前に選び、全方向を掲載しています。</p></div>
+<p class="src">S0〜S3の中身は、上の「表示するシナリオ」の表のとおりです。右端の列は、S2からS3になる（補50ができる）ことで短くなる秒数。区道1031号・1078号の整序・拡幅は反映していません。起終点の6組は計算の前に選び、全方向を掲載しています。</p></div>
 <div class="card"><h2>地区外の道路の負担と、幹線が通れなくなったときの冗長性</h2><div id="ext"></div></div>
 <div class="card"><h2>混雑のしやすさの目安：全ての起終点（S2 → S3）</h2><div style="overflow-x:auto"><table class="m" id="tbl2"></table></div>
 <p class="src">「気になる点」は次の4つのうち当てはまる数（目安であり予測ではない）：①狭い道が多い（1車線区間が経路の半分以上）②交差点・折れが多い（折れ3回以上、または1kmあたり交差点9以上）③通り抜け容量が小さい（起終点の周辺150mどうしの最大処理量が3,000台/時未満）④迂回路が乏しい（独立な経路が1本以下、または1か所の途絶で不通）。基準値は仮定。幅員は道路種別からの車線数の推定（OSMの幅員の記載は1％のため）。補50は幅員15mを片側2車線と仮定。「途絶時の所要」は、経路上のどこか1か所が通れない場合に最も遅くなる所要（自由流・右左折なしの秒）と、その時に途絶しているリンク。</p></div>
@@ -75,7 +78,7 @@ ul{margin:6px 0 0;padding-left:18px}.src{color:var(--dim);font-size:14.5px}.chip
 </div>
 <script src="vendor/maplibre-gl.js"></script><script src="data/l0.js"></script><script src="data/net.js"></script><script src="data/boundary.js"></script><script src="data/seko.js"></script><script src="data/ext.js"></script>
 <script>
-const SCN={S0:"現況",S1:"補50のみ",S2:"再開発後（補50なし・さくら坂を廃止）",S3:"補50＋再開発"},COL={S0:"#8fa3ad",S1:"#8ec5ff",S2:"#ff9f6b",S3:"#4ec9b0"};
+const SCN={S0:"現況",S1:"再開発前・補50あり",S2:"再開発後・補50なし",S3:"再開発後・補50あり"},COL={S0:"#8fa3ad",S1:"#8ec5ff",S2:"#ff9f6b",S3:"#4ec9b0"};
 const q=new URLSearchParams(location.search);let cur=["S0","S1","S2","S3"].includes(q.get("sc"))?q.get("sc"):"S3",cmp=q.get("cmp")!=="0";
 const $=id=>document.getElementById(id);
 $("ext").innerHTML=extHTML();

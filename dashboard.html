@@ -25,10 +25,15 @@ th:first-child,td:first-child{text-align:left}th{color:var(--dim);font-weight:60
 .sw{display:inline-block;width:18px;height:4px;vertical-align:middle;margin-right:5px;border-radius:2px}
 .seg button{background:transparent;color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:5px 10px;font:inherit;font-size:15px;cursor:pointer;margin:0 4px 4px 0}.seg button.on{border-color:var(--hi);color:var(--hi);font-weight:600}
 @media(max-width:860px){#wrap{grid-template-columns:1fr}#ctl{max-height:none}}
+.mx{border-collapse:collapse;margin:4px 0 8px;font-size:15px}.mx th,.mx td{border:1px solid var(--line);padding:4px 12px;text-align:center}.mx th{color:var(--dim);font-weight:400}.mx .on{outline:2px solid var(--hi);outline-offset:-2px;font-weight:700}
 </style></head><body><main>
 <div><h1>桜丘 シナリオ別の交通状態の比較</h1>
 <div class="src">補助第50号線（補50）の有無と再開発による、桜丘周辺の道路網の交通状態を、同じ仮定で並べて比べる。 <a href="index.html">経路の比較（個別のルート）</a> ／ <a href="emergency.html">緊急車両の到達</a></div></div>
 <div class="banner">区の公式推計ではありません。個人による簡易なシミュレーションで、数値は仮定にもとづく相対比較（仮定による例示）です。実測で較正しておらず、実際の渋滞の発生や混雑度の水準を示すものではありません。信号の待ち時間・歩行者・バス運行・工事中の交通は計算に入れていません。</div>
+
+<div class="card"><h2>シナリオの見方</h2>
+<table class="mx"><tr><th></th><th>補50なし</th><th>補50あり</th></tr><tr><th>再開発前</th><td>S0 現況</td><td>S1</td></tr><tr><th>再開発後</th><td class="on">S2</td><td class="on">S3</td></tr></table>
+<p class="src">シナリオは「補50があるか」と「再開発が終わったか」の組み合わせです。<b>主に比べるのは S2 と S3</b>。どちらも再開発後で、違いは補50の有無だけなので、差がそのまま補50の効果になります。再開発後（S2・S3）は、素案の交通計画どおり、さくら坂（区道1032号）を廃止し、区道432号を相互通行に、448号を西向き一方通行にしています。再開発で増える車も加えています。S3では、補50のうち再開発の敷地（A街区）を通る部分は道路に入れていません。<br>S4 は、差を要因に分けるための補助のシナリオです。道路は現況（S0）のままで、再開発で増える車だけを加えています。</p></div>
 
 <div class="kpis" id="kpis"></div>
 
@@ -38,7 +43,7 @@ th:first-child,td:first-child{text-align:left}th{color:var(--dim);font-weight:60
 
 <div class="card"><h2>2. 差の要因分解</h2>
 <div style="overflow-x:auto"><table id="t2"></table></div>
-<p class="src">S3−S2＝補50を整備した効果（同じ需要・同じ区画道路）／S2−S4＝区画道路の廃道の効果（さくら坂〔区道1032号〕を廃止し、区道432号を相互通行化、448号を西向き一方通行に。1031・1078の整序・拡幅は未反映）／S4−S0＝再開発の需要そのものの効果。右の列は、車の発生量（低・中・高）×BT台数（低・基準・高）×二丁目西BT（有・無）の18通りでの範囲。</p></div>
+<p class="src">現況（S0）から「再開発後・補50あり」（S3）までの変化を、3つに分けています。S4−S0＝再開発で増える車の効果（道路は現況のまま）／S2−S4＝再開発に伴う道路の変更の効果（さくら坂の廃止、区道432号の相互通行、448号の西向き一方通行。1031号・1078号の整序・拡幅は未反映）／S3−S2＝補50の効果（ほかの条件は同じ）。3つを足すと S3−S0 になります。右の列は、車の発生量（低・中・高）×BT台数（低・基準・高）×二丁目西BT（有・無）の18通りでの範囲。</p></div>
 
 <div class="card"><h2>3. 補50と再開発の効果（結果の要約）</h2>
 <div style="overflow-x:auto"><table id="t3"></table></div>
@@ -75,7 +80,7 @@ th:first-child,td:first-child{text-align:left}th{color:var(--dim);font-weight:60
 <script src="data/l0.js"></script><script src="data/l1.js"></script><script src="data/boundary.js"></script><script src="data/seko.js"></script><script src="data/ext.js"></script>
 <script>
 const $=id=>document.getElementById(id), R=L1D.rows, S=L1D.sens;
-const SN={S0:"現況",S1:"補50のみ",S2:"再開発後（補50なし）",S3:"補50＋再開発",S4:"再開発の需要のみ"};
+const SN={S0:"現況",S1:"再開発前・補50あり",S2:"再開発後・補50なし",S3:"再開発後・補50あり",S4:"道路は現況・再開発の車のみ"};
 const f0=x=>Math.round(x).toLocaleString(), f1=x=>(Math.round(x*10)/10).toLocaleString(), f2=x=>(Math.round(x*100)/100).toFixed(2);
 const sg=(x,d=0)=>(x>0?"+":x<0?"−":"±")+Math.abs(d==2?Math.round(x*100)/100:d==1?Math.round(x*10)/10:Math.round(x)).toLocaleString();
 const grid=sc=>R.filter(r=>r.scenario===sc), key=r=>r.car+"|"+r.bt+"|"+r.nishi2;
@@ -91,9 +96,9 @@ const diffRange=(m,a,b)=>{const A={},B={};grid(a).forEach(r=>A[key(r)]=r[m]);gri
 {let h="<tr><th>指標</th>"+["S0","S1","S2","S3","S4"].map(s=>`<th>${s}<br><span style="font-weight:400">${SN[s]}</span></th>`).join("")+"</tr>";
  M.forEach(([m,l,f])=>{h+=`<tr><td>${l}</td>`+["S0","S1","S2","S3","S4"].map(s=>`<td>${f(rep(s)[m])}</td>`).join("")+"</tr>"});
  $("t1").innerHTML=h;
- $("t1n").textContent="代表ケース＝車の発生は中位、バスターミナルは資料の約22台/時、二丁目西BTなし。需要の配分の収束（相対ギャップ）は全ケースで0.002以下。S1は再開発の需要を含まず、S4は道路を現況のままにして再開発の需要だけを加えたもの。";}
+ $("t1n").textContent="代表ケース＝車の発生は中位、バスターミナルは資料の約22台/時、二丁目西BTなし。需要の配分の収束（相対ギャップ）は全ケースで0.002以下。S0・S1は再開発で増える車を含みません。";}
 // 表2
-{const cmp=[["S3 − S2","補50の効果","S2","S3"],["S2 − S4","区画道路の変更の効果","S4","S2"],["S4 − S0","再開発の需要の効果","S0","S4"]];
+{const cmp=[["S3 − S2","補50の効果","S2","S3"],["S2 − S4","再開発に伴う道路の変更の効果","S4","S2"],["S4 − S0","再開発で増える車の効果","S0","S4"]];
  let h="<tr><th>指標</th>"+cmp.map(c=>`<th>${c[0]}<br><span style="font-weight:400">${c[1]}</span></th>`).join("")+"<th>S3−S2 の18通りの範囲</th></tr>";
  M.forEach(([m,l,f])=>{const d=m==="vc246_max"?2:m==="local_flow"||m==="h50_mean_flow"||m.startsWith("tt")||m==="VHT"||m==="VKT"?0:0;
   const cell=(a,b)=>{const v=rep(b)[m]-rep(a)[m];return`<td class="${v>0?"up":v<0?"down":""}">${sg(v,m==="vc246_max"?2:0)}</td>`};

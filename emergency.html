@@ -29,6 +29,7 @@ th:first-child,td:first-child{text-align:left}th{color:var(--dim);font-weight:60
 <div><h1>桜丘 緊急車両の到達（幅員と迂回路）</h1>
 <div class="src">救急車・消防車が、幹線道路から地区計画区域内の各交差点まで、どの幅の道を通って何本の別ルートで入れるかを、シナリオ別に比べる。 <a href="index.html">経路の比較</a> ／ <a href="dashboard.html">シナリオ比較ダッシュボード</a></div></div>
 <div class="banner">区の公式推計ではありません。個人による簡易な分析で、道路の幅は国土地理院の幅員区分（5段階）による概略です。電柱・路上駐車・坂・隅切り・はしご車の活動空間は考えていません。消防・救急の実際の到達可否や活動の可否を示すものではありません。</div>
+<div class="src">シナリオ：<b>S0</b>＝現況／<b>S2</b>＝再開発後・補50なし（素案どおりさくら坂を廃止し、資料5の道路の拡幅を反映）／<b>S3</b>＝S2に補50を加えたもの。S0とS2の差は再開発に伴う道路の変更の効果、S2とS3の差は補50の効果です。</div>
 
 <div class="kpis" id="kpis"></div>
 
@@ -63,7 +64,7 @@ th:first-child,td:first-child{text-align:left}th{color:var(--dim);font-weight:60
 <script src="vendor/maplibre-gl.js"></script><script src="data/emg.js"></script><script src="data/boundary.js"></script><script src="data/seko.js"></script>
 <script>
 const $=id=>document.getElementById(id);
-const SN={S0:"現況",S2:"再開発後（補50なし）",S3:"補50＋再開発"}, TH={"3m":"3m以上（救急車・ポンプ車の目安）","5.5m":"5.5m以上（6m級＝はしご車の目安の近似）"}, MD={u:"向きを無視（緊急走行）",d:"一方通行を守る"};
+const SN={S0:"現況",S2:"再開発後・補50なし",S3:"再開発後・補50あり"}, TH={"3m":"3m以上（救急車・ポンプ車の目安）","5.5m":"5.5m以上（6m級＝はしご車の目安の近似）"}, MD={u:"向きを無視（緊急走行）",d:"一方通行を守る"};
 const WC=["#ff4d4d","#ff9f43","#ffd166","#4ec9b0","#6cb4ff"], KC=["#ff4d4d","#ff9f43","#ffd166","#4ec9b0"], KL=["0本（届かない）","1本だけ","2本","3本以上"];
 const SUM=EMG.sum;
 let sc="S2",th="5.5m",md="u",base="pale";
