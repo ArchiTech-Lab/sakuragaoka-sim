@@ -30,12 +30,12 @@ th:first-child,td:first-child{text-align:left}th{color:var(--dim);font-weight:60
 </style></head><body><main>
 <div><h1>桜丘 シナリオ別の交通状態の比較</h1>
 <nav class="nav"><a href="index.html">経路の比較</a><a class="on" href="dashboard.html">交通状態の比較</a><a href="emergency.html">緊急車両の到達</a><a href="flow.html">車の流れ</a></nav>
-<div class="src">現況と、素案どおり再開発が行われた後の、桜丘周辺の道路網の交通状態を、同じ仮定で並べて比べる。</div></div>
+<div class="src">現況と、補50を整備した場合と、素案どおり再開発が行われた後の、桜丘周辺の道路網の交通状態を、同じ仮定で並べて比べる。</div></div>
 <div class="banner">区の公式推計ではありません。個人による簡易なシミュレーションで、数値は仮定にもとづく相対比較（仮定による例示）です。実測で較正しておらず、実際の渋滞の発生や混雑度の水準を示すものではありません。信号の待ち時間・歩行者・バス運行・工事中の交通は計算に入れていません。</div>
 
 <div class="card"><h2>シナリオの見方</h2>
-<table class="mx"><tr><td class="on">S0 現況</td><td>いまの道路</td></tr><tr><td class="on">S2 素案</td><td>再開発後の道路（補50は廃止）</td></tr><tr><td>S1 参考</td><td>補50を計画どおり整備した場合（再開発なし）</td></tr><tr><td>S4 補助</td><td>道路は現況のまま、再開発で増える車だけを加えた場合</td></tr></table>
-<p class="src"><b>主に比べるのは S0（現況）と S2（素案）</b>です。差は、素案どおり再開発が行われたときの変化です。S2 は、素案の交通計画どおり、さくら坂（区道1032号）を廃止し、区道432号を相互通行に、448号を西向き一方通行にしています。再開発で増える車も加えています。<br>S1 は、廃止される前の都市計画道路の計画（補50）が仮に整備されていたらどうだったかを見る参考です。補50の桜丘町〜鉢山町の区間は、再開発のために令和5年に計画から廃止されているため、補50と再開発の両方がある姿は扱いません。S4 は、S0とS2の差を「増える車」と「道路の変更」に分けるための補助のシナリオです。</p></div>
+<table class="mx"><tr><td class="on">S1 補50整備</td><td>補50を計画どおり整備した場合（再開発なし）</td></tr><tr><td class="on">S2 素案</td><td>再開発後の道路（補50は廃止）。再開発で増える車を含む</td></tr><tr><td>S0 現況</td><td>参考：いまの道路</td></tr><tr><td>S4 補助</td><td>道路は現況のまま、再開発で増える車だけを加えた場合</td></tr></table>
+<p class="src"><b>主に比べるのは S1（補50を整備した場合）と S2（素案）</b>です。S1 は、廃止される前の都市計画道路の計画（補50）が仮に整備されていた姿（再開発なし）、S2 は、素案どおり再開発が行われ、補50が廃止された姿です。2つの違いには、<b>補50の有無</b>と<b>再開発で増える車の有無</b>が重なっているため、表2で差を分けて示します。S2 は、素案の交通計画どおり、さくら坂（区道1032号）を廃止し、区道432号を相互通行に、448号を西向き一方通行にしています。補50の桜丘町〜鉢山町の区間は、再開発のために令和5年に計画から廃止されているため、補50と再開発の両方がある姿は扱いません。S0 は、いまの道路で参考です。S4 は、差を分けるための補助のシナリオ（道路は現況のまま、再開発で増える車だけを加えた姿）です。</p></div>
 
 <div class="kpis" id="kpis"></div>
 
@@ -43,9 +43,9 @@ th:first-child,td:first-child{text-align:left}th{color:var(--dim);font-weight:60
 <div style="overflow-x:auto"><table id="t1"></table></div>
 <p class="src" id="t1n"></p></div>
 
-<div class="card"><h2>2. 差の要因分解</h2>
+<div class="card"><h2>2. 差の内訳（何が差を生んでいるか）</h2>
 <div style="overflow-x:auto"><table id="t2"></table></div>
-<p class="src">現況（S0）から素案（S2）への変化を、2つに分けています。S4−S0＝再開発で増える車の効果（道路は現況のまま）／S2−S4＝再開発に伴う道路の変更の効果（さくら坂の廃止、区道432号の相互通行、448号の西向き一方通行。1031号・1078号の整序・拡幅は未反映）。2つを足すと S2−S0 になります。右の列は、車の発生量（低・中・高）×BT台数（低・基準・高）×二丁目西BT（有・無）の18通りでの範囲。</p></div>
+<p class="src">補50を整備した場合（S1）から素案（S2）への差を、3つに分けています。S4−S0＝再開発で増える車の効果（道路は現況のまま）／S0−S1＝補50がないことによる道路の違い（補50を整備した場合との差）／S2−S4＝素案の道路の変更の効果（さくら坂の廃止、区道432号の相互通行、448号の西向き一方通行。1031号・1078号の整序・拡幅は未反映）。3つを足すと S2−S1 になります。右の列は、車の発生量（低・中・高）×BT台数（低・基準・高）×二丁目西BT（有・無）の18通りでの S2−S1 の範囲。</p></div>
 
 <div class="card"><h2>3. 素案による変化（結果の要約）</h2>
 <div style="overflow-x:auto"><table id="t3"></table></div>
@@ -74,7 +74,7 @@ th:first-child,td:first-child{text-align:left}th{color:var(--dim);font-weight:60
 </div></div></div>
 
 <div class="card"><h2>この結果が言えること／言えないこと</h2>
-<ul><li class="ok">言える：同じ仮定のもとで、素案（S2）では現況（S0）に比べて、通り抜け経路の形（距離・右左折・1車線区間の割合・迂回路）と、配分上の流れの偏りがどう変わるか。どの仮定で結論が変わるか。</li>
+<ul><li class="ok">言える：同じ仮定のもとで、素案（S2）では補50を整備した場合（S1）に比べて、通り抜け経路の形（距離・右左折・1車線区間の割合・迂回路）と、配分上の流れの偏りがどう変わるか。どの仮定で結論が変わるか。</li>
 <li class="w">言えない：実際の渋滞の有無・混雑度の水準、再開発の交通影響の大小、実際の所要時間。需要の置き方で符号が変わる指標は、結論にしない。</li></ul>
 <p class="src">道路網：OpenStreetMap（© OpenStreetMap contributors, ODbL）を加工。背景地図：<a href="https://maps.gsi.go.jp/development/ichiran.html">地理院タイル</a>（国土地理院）。地図ライブラリ MapLibre GL（BSD）。補50・地区計画区域の線は渋谷区の縦覧図を位置合わせした概略で、公式の線形・区域ではありません。</p></div>
 </main>
@@ -82,47 +82,47 @@ th:first-child,td:first-child{text-align:left}th{color:var(--dim);font-weight:60
 <script src="data/l0.js"></script><script src="data/l1.js"></script><script src="data/boundary.js"></script><script src="data/seko.js"></script><script src="data/ext.js"></script>
 <script>
 const $=id=>document.getElementById(id), R=L1D.rows, S=L1D.sens;
-const SN={S0:"現況",S2:"素案（再開発後）",S1:"参考：補50を整備（再開発なし）",S4:"補助：道路は現況・再開発の車のみ"}, SC=["S0","S2","S1","S4"];
+const SN={S1:"補50を整備（再開発なし）",S2:"素案（再開発後）",S0:"参考：現況",S4:"補助：道路は現況・再開発の車のみ"}, SC=["S1","S2","S0","S4"];
 const f0=x=>Math.round(x).toLocaleString(), f1=x=>(Math.round(x*10)/10).toLocaleString(), f2=x=>(Math.round(x*100)/100).toFixed(2);
-const sg=(x,d=0)=>(x>0?"+":x<0?"−":"±")+Math.abs(d==2?Math.round(x*100)/100:d==1?Math.round(x*10)/10:Math.round(x)).toLocaleString();
+const sg=(x,d=0)=>(x>0?"+":x<0?"−":"±")+(d==2?Math.abs(Math.round(x*100)/100).toFixed(2):Math.abs(d==1?Math.round(x*10)/10:Math.round(x)).toLocaleString());
 const grid=sc=>R.filter(r=>r.scenario===sc), key=r=>r.car+"|"+r.bt+"|"+r.nishi2;
 $("ext").innerHTML=extHTML();   // 5. 地区外の負担・寸断の表（ext.js）。呼び出しが抜けていて空欄だった（10/31 画面確認で発見）
 const rep=sc=>S.dispersed[sc];   // 代表ケース＝車 mid・BT base・二丁目西BTなし
 const M=[["VKT","総走行距離（台km/時）",f0],["VHT","総所要時間（台時間/時）",f0],["tt_fw_s","桜丘西口→鉢山町（混雑後の所要・秒）",f0],["tt_bw_s","鉢山町→桜丘西口（秒）",f0],["vc246_max","国道246（桜丘付近）の最大 V/C",f2],["local_flow","桜丘付近の区画道路の流量合計（台/時）",f0],["h50_mean_flow","補50の平均流量（台/時）",f0]];
-// 範囲（18通り）で S2−S0 の差
+// 範囲（18通り）で b−a の差
 const diffRange=(m,a,b)=>{const A={},B={};grid(a).forEach(r=>A[key(r)]=r[m]);grid(b).forEach(r=>B[key(r)]=r[m]);const d=Object.keys(A).map(k=>B[k]-A[k]);return[Math.min(...d),Math.max(...d)]};
 // KPI
-{const a=rep("S0"),b=rep("S2"),t=(v,l,c)=>`<div class="kpi"><b class="${c||""}">${v}</b><span>${l}</span></div>`,ud=(x,y)=>y<x?"down":y>x?"up":"";
- $("kpis").innerHTML=t(sg(b.tt_fw_s-a.tt_fw_s)+"秒","桜丘西口→鉢山町の所要の変化（素案−現況）",ud(a.tt_fw_s,b.tt_fw_s))+t(sg(b.VKT-a.VKT)+" 台km/時","総走行距離の変化（素案−現況）",ud(a.VKT,b.VKT))+t(sg(b.VHT-a.VHT)+" 台時間/時","総所要時間の変化（素案−現況）",ud(a.VHT,b.VHT))+t(sg(b.vc246_max-a.vc246_max,2),"国道246 最大V/Cの変化（桜丘付近）",ud(a.vc246_max,b.vc246_max));}
+{const a=rep("S1"),b=rep("S2"),t=(v,l,c)=>`<div class="kpi"><b class="${c||""}">${v}</b><span>${l}</span></div>`,ud=(x,y)=>y<x?"down":y>x?"up":"";
+ $("kpis").innerHTML=t(sg(b.tt_fw_s-a.tt_fw_s)+"秒","桜丘西口→鉢山町の所要の変化（素案−補50整備）",ud(a.tt_fw_s,b.tt_fw_s))+t(sg(b.VKT-a.VKT)+" 台km/時","総走行距離の変化（素案−補50整備）",ud(a.VKT,b.VKT))+t(sg(b.VHT-a.VHT)+" 台時間/時","総所要時間の変化（素案−補50整備）",ud(a.VHT,b.VHT))+t(sg(b.vc246_max-a.vc246_max,2),"国道246 最大V/Cの変化（桜丘付近）",ud(a.vc246_max,b.vc246_max));}
 // 表1
 {let h="<tr><th>指標</th>"+SC.map(s=>`<th>${s}<br><span style="font-weight:400">${SN[s]}</span></th>`).join("")+"</tr>";
  M.forEach(([m,l,f])=>{h+=`<tr><td>${l}</td>`+SC.map(s=>`<td>${f(rep(s)[m])}</td>`).join("")+"</tr>"});
  $("t1").innerHTML=h;
  $("t1n").textContent="代表ケース＝車の発生は中位、バスターミナルは資料の約22台/時、二丁目西BTなし。需要の配分の収束（相対ギャップ）は全ケースで0.002以下。S0・S1は再開発で増える車を含みません。「区画道路の流量合計」は、S2では廃止した道路が集計から外れる分も減少に含まれます。";}
-// 表2
-{const cmp=[["S2 − S0","素案による変化（合計）","S0","S2"],["S4 − S0","うち再開発で増える車","S0","S4"],["S2 − S4","うち道路の変更","S4","S2"]];
- let h="<tr><th>指標</th>"+cmp.map(c=>`<th>${c[0]}<br><span style="font-weight:400">${c[1]}</span></th>`).join("")+"<th>S2−S0 の18通りの範囲</th></tr>";
- M.forEach(([m,l,f])=>{const d=m==="vc246_max"?2:m==="local_flow"||m==="h50_mean_flow"||m.startsWith("tt")||m==="VHT"||m==="VKT"?0:0;
+// 表2：S2−S1 を「再開発で増える車」「補50がないことによる道路の違い」「素案の道路の変更」に分ける（3つを足すと S2−S1）
+{const cmp=[["S2 − S1","素案−補50整備（合計）","S1","S2"],["S4 − S0","うち再開発で増える車","S0","S4"],["S0 − S1","うち補50がないことによる道路の違い","S1","S0"],["S2 − S4","うち素案の道路の変更","S4","S2"]];
+ let h="<tr><th>指標</th>"+cmp.map(c=>`<th>${c[0]}<br><span style="font-weight:400">${c[1]}</span></th>`).join("")+"<th>S2−S1 の18通りの範囲</th></tr>";
+ M.forEach(([m,l,f])=>{
   const cell=(a,b)=>{const v=rep(b)[m]-rep(a)[m];return`<td class="${v>0?"up":v<0?"down":""}">${sg(v,m==="vc246_max"?2:0)}</td>`};
-  const [lo,hi]=diffRange(m,"S0","S2");
+  const [lo,hi]=diffRange(m,"S1","S2");
   h+=`<tr><td>${l}</td>`+cmp.map(c=>cell(c[2],c[3])).join("")+`<td>${sg(lo,m==="vc246_max"?2:0)} 〜 ${sg(hi,m==="vc246_max"?2:0)}</td></tr>`});
  $("t2").innerHTML=h;}
 // 表3（公開版：結果のみ）
-{const a=rep("S0"),b=rep("S2"),ca=S.concentrated.S0,cb=S.concentrated.S2;
- const rg=(m,d)=>{const [lo,hi]=diffRange(m,"S0","S2");return `${sg(lo,d)} 〜 ${sg(hi,d)}`};
- const h3=(100*(b.local_flow-a.local_flow)/Math.max(1,a.local_flow)), h3c=(100*(cb.local_flow-ca.local_flow)/Math.max(1,ca.local_flow));
- const k=Object.keys(L0.routes.S0).filter(q=>L0.routes.S0[q]&&L0.routes.S2[q]);
- const rt=k.map(q=>L0.routes.S2[q].R-L0.routes.S0[q].R), tt=k.map(q=>L0.routes.S2[q].total_s-L0.routes.S0[q].total_s);
+{const a=rep("S1"),b=rep("S2"),a0=rep("S0"),ca=S.concentrated.S0,cb=S.concentrated.S2;
+ const rg=(m,d)=>{const [lo,hi]=diffRange(m,"S1","S2");return `${sg(lo,d)} 〜 ${sg(hi,d)}`};
+ const h3=(100*(b.local_flow-a0.local_flow)/Math.max(1,a0.local_flow)), h3c=(100*(cb.local_flow-ca.local_flow)/Math.max(1,ca.local_flow));
+ const k=Object.keys(L0.routes.S1).filter(q=>L0.routes.S1[q]&&L0.routes.S2[q]);
+ const rt=k.map(q=>L0.routes.S2[q].R-L0.routes.S1[q].R), tt=k.map(q=>L0.routes.S2[q].total_s-L0.routes.S1[q].total_s);
  const rows=[
   ["桜丘西口→鉢山町の混雑後の所要（秒）",`代表 ${sg(b.tt_fw_s-a.tt_fw_s)}／18通り ${rg("tt_fw_s",0)}`],
   ["国道246（桜丘付近）の最大V/C",`代表 ${sg(b.vc246_max-a.vc246_max,2)}／18通り ${rg("vc246_max",2)}。流入の仮定に依存し、結論にしない`],
   ["総走行距離（台km/時）",`代表 ${sg(b.VKT-a.VKT)}／18通り ${rg("VKT",0)}`],
   ["通り抜け12方向の所要（自由流・ターン込）",`長く${tt.filter(x=>x>0).length}／短く${tt.filter(x=>x<0).length}／同じ${tt.filter(x=>x==0).length}（最大 ${sg(Math.max(...tt))}秒）`],
   ["通り抜け12方向の右折回数",`増える${rt.filter(x=>x>0).length}／減る${rt.filter(x=>x<0).length}／同じ${rt.filter(x=>x==0).length}`],
-  ["桜丘付近の区画道路の流量",`${sg(h3)}%（集中：${sg(h3c)}%）。廃止した道路が集計から外れる分を含む`]];
- $("t3").innerHTML="<tr><th>指標</th><th>素案−現況（S2−S0）</th></tr>"+rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join("");}
+  ["桜丘付近の区画道路の流量（現況比。参考）",`${sg(h3)}%（集中：${sg(h3c)}%）。廃止した道路が集計から外れる分を含む`]];
+ $("t3").innerHTML="<tr><th>指標</th><th>素案−補50整備（S2−S1）</th></tr>"+rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join("");}
 // 表4
-{const keys=Object.keys(L0.routes.S0).filter(q=>L0.routes.S0[q]);const sc=["S0","S2","S1"];
+{const keys=Object.keys(L0.routes.S1).filter(q=>L0.routes.S1[q]);const sc=["S1","S2","S0"];
  const flags=r=>{const t=r.st;return(t.share_1lane>=0.5)+(r.bends>=3||t.links_per_km>=9)+(t.corridor_cap<3000)+(t.disjoint<=1||t.cut_links>0)};
  const avg=(s,fn)=>{const v=keys.map(q=>L0.routes[s][q]).filter(Boolean).map(fn);return v.reduce((a,b)=>a+b,0)/v.length};
  const rows=[["所要時間（ターン込・自由流、秒）",s=>f0(avg(s,r=>r.total_s))],["距離（m）",s=>f0(avg(s,r=>r.m))],["右折の回数",s=>f1(avg(s,r=>r.R))],["折れ（右左折・Uターン）の回数",s=>f1(avg(s,r=>r.bends))],["1車線区間の割合（%）",s=>f0(100*avg(s,r=>r.st.share_1lane))],["交差点の数（1kmあたり）",s=>f1(avg(s,r=>r.st.links_per_km))],["通り抜け容量（台/時）",s=>f0(avg(s,r=>r.st.corridor_cap))],["独立な経路の本数",s=>f1(avg(s,r=>r.st.disjoint))],["1か所途絶時の最悪の所要（秒）",s=>f0(avg(s,r=>r.st.detour_worst_s))],["「気になる点」の該当数（0〜4）",s=>f1(avg(s,flags))]];
@@ -134,7 +134,7 @@ let sc="S2",mode="vc",base="pale";
 const dark=matchMedia("(prefers-color-scheme: dark)").matches;
 $("base").innerHTML=`<label><input type="radio" name="bs" value="none"> なし（道路だけ）</label>`+GSI.map(g=>`<label><input type="radio" name="bs" value="${g[0]}" ${g[0]===base?"checked":""}> ${g[1]}</label>`).join("");
 $("scb").innerHTML=SC.filter(s=>L1D.links[s]).map(s=>`<button data-k="${s}" class="${s===sc?"on":""}">${s} ${SN[s]}</button>`).join("");
-$("modeb").innerHTML=[["vc","V/C（配分上の混み具合）"],["dq","流量の差（S2−S0）"]].map(([k,t])=>`<button data-k="${k}" class="${k===mode?"on":""}">${t}</button>`).join("");
+$("modeb").innerHTML=[["vc","V/C（配分上の混み具合）"],["dq","流量の差（S2−S1）"]].map(([k,t])=>`<button data-k="${k}" class="${k===mode?"on":""}">${t}</button>`).join("");
 const style={version:8,sources:{},layers:[{id:"bg",type:"background",paint:{"background-color":dark?"#0e1417":"#f4f7f8"}}]};
 GSI.forEach(g=>{style.sources[g[0]]={type:"raster",tiles:["https://cyberjapandata.gsi.go.jp/xyz/"+g[2]],tileSize:256,maxzoom:g[0]==="relief"||g[0]==="hill"?15:18,attribution:"<a href='https://maps.gsi.go.jp/development/ichiran.html'>地理院タイル</a>"};
  style.layers.push({id:"b-"+g[0],type:"raster",source:g[0],layout:{visibility:g[0]===base?"visible":"none"},paint:{"raster-opacity":0.8}})});
@@ -144,10 +144,10 @@ const fc=f=>({type:"FeatureCollection",features:f}), ln=(c,p)=>({type:"Feature",
 const lk=e=>e.c[0].join(",")+"|"+e.c[e.c.length-1].join(",");
 function feats(){
  if(mode==="vc")return fc((L1D.links[sc]||[]).map(e=>ln(e.c,{vc:e.vc,q:e.q,n:e.n,d:0})));
- const A={},B={};L1D.links.S0.forEach(e=>A[lk(e)]=e);L1D.links.S2.forEach(e=>B[lk(e)]=e);
+ const A={},B={};L1D.links.S1.forEach(e=>A[lk(e)]=e);L1D.links.S2.forEach(e=>B[lk(e)]=e);
  const ks=new Set([...Object.keys(A),...Object.keys(B)]);
  return fc([...ks].map(k=>{const e=B[k]||A[k],d=(B[k]?B[k].q:0)-(A[k]?A[k].q:0);return ln(e.c,{vc:0,q:Math.abs(d),n:e.n,d})}).filter(f=>Math.abs(f.properties.d)>=20));}
-function legend(){$("legend").innerHTML=mode==="vc"?[["#5a6b74","V/C 0.5未満"],["#ffd166","0.5〜0.8"],["#ff9f43","0.8〜1.0"],["#ff4d4d","1.0以上"]].map(([c,t])=>`<span class="sw" style="background:${c}"></span>${t}`).join("<br>")+"<br>太さ＝流量":`<span class="sw" style="background:#ff6b6b"></span>流量が増えた（素案−現況）<br><span class="sw" style="background:#6cb4ff"></span>流量が減った<br>20台/時未満の差は非表示。太さ＝差の大きさ`}
+function legend(){$("legend").innerHTML=mode==="vc"?[["#5a6b74","V/C 0.5未満"],["#ffd166","0.5〜0.8"],["#ff9f43","0.8〜1.0"],["#ff4d4d","1.0以上"]].map(([c,t])=>`<span class="sw" style="background:${c}"></span>${t}`).join("<br>")+"<br>太さ＝流量":`<span class="sw" style="background:#ff6b6b"></span>流量が増えた（素案−補50整備）<br><span class="sw" style="background:#6cb4ff"></span>流量が減った<br>20台/時未満の差は非表示。太さ＝差の大きさ`}
 map.on("load",()=>{
  map.addSource("lk",{type:"geojson",data:feats()});
  map.addLayer({id:"lk",type:"line",source:"lk",layout:{"line-cap":"round"},paint:{"line-color":["case",["==",["get","d"],0],["step",["get","vc"],"#5a6b74",0.5,"#ffd166",0.8,"#ff9f43",1.0,"#ff4d4d"],[">",["get","d"],0],"#ff6b6b","#6cb4ff"],"line-width":["interpolate",["linear"],["get","q"],0,1,200,2.5,1000,5,3000,9],"line-opacity":0.92}});

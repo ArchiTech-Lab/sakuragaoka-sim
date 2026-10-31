@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>桜丘 車の流れのイメージ（現況と素案）</title>
+<title>桜丘 車の流れのイメージ（補50整備と素案）</title>
 <link rel="stylesheet" href="vendor/maplibre-gl.css">
 <style>
 :root{--bg:#0e1417;--fg:#e8eef1;--dim:#8fa3ad;--hi:#4ec9b0;--line:#26333a;--panel:#131c21;--warn:#ffd166;--road:#2c3a42;--mapbg:#0e1417}
@@ -23,9 +23,9 @@ button{background:transparent;color:var(--fg);border:1px solid var(--line);borde
 .diff{font-size:20px}.diff b{color:var(--warn)}
 @media(max-width:860px){.pair{grid-template-columns:1fr}.pane .m{height:46vh;min-height:300px}}
 </style></head><body><main>
-<div><h1>桜丘 車の流れのイメージ（現況と素案）</h1>
+<div><h1>桜丘 車の流れのイメージ（補50整備と素案）</h1>
 <nav class="nav"><a href="index.html">経路の比較</a><a href="dashboard.html">交通状態の比較</a><a href="emergency.html">緊急車両の到達</a><a class="on" href="flow.html">車の流れ</a></nav>
-<div class="src">計算した交通量どおりに、道路上にいる車の台数を並べて走らせた映像です。左が現況、右が素案（再開発後）。地図は2つ連動して動きます。</div></div>
+<div class="src">計算した交通量どおりに、道路上にいる車の台数を並べて走らせた映像です。左が補50を整備した場合（再開発なし）、右が素案（再開発後）。地図は2つ連動して動きます。</div></div>
 <div class="banner">区の公式推計ではありません。個人による簡易なシミュレーションで、<b>実際の交通を再現・予測するものではありません</b>。道路ごとの交通量（1時間あたりの平均）に比例して車の数を割り振り、決まった速さで流しているだけで、信号・右左折・渋滞での停止・個々の車の動きは入っていません。車1つ＝道路上にいる平均的な1台です。</div>
 <div class="card">
 <div class="bar"><button id="play" class="on">❚❚ 一時停止</button>
@@ -33,13 +33,13 @@ button{background:transparent;color:var(--fg);border:1px solid var(--line);borde
 <span class="src" style="margin-left:6px">車の色（その道路の混み具合 V/C）</span><span class="src"><i class="dot" style="background:#4ec9b0"></i>0.5未満<i class="dot" style="background:#ffd166"></i>0.5〜0.8<i class="dot" style="background:#ff6b6b"></i>0.8以上</span></div>
 <div class="diff" id="diff" style="margin-top:6px"></div></div>
 <div class="pair">
-<div class="pane"><div class="m" id="mA"></div><canvas id="cA"></canvas><div class="tag"><b>S0 現況</b><span class="n" id="nA"></span><span class="src">道路上の車（台）</span></div></div>
+<div class="pane"><div class="m" id="mA"></div><canvas id="cA"></canvas><div class="tag"><b>S1 補50整備（再開発なし）</b><span class="n" id="nA"></span><span class="src">道路上の車（台）</span></div></div>
 <div class="pane"><div class="m" id="mB"></div><canvas id="cB"></canvas><div class="tag"><b>S2 素案（再開発後）</b><span class="n" id="nB"></span><span class="src">道路上の車（台）</span></div></div>
 </div>
 <div class="card"><h2>この映像の見方</h2>
 <ul style="margin:6px 0 0;padding-left:18px">
 <li>車の数は、計算結果の「総所要時間（台時間/時）」に合わせています。ある瞬間に道路上にいる車の台数の目安です。</li>
-<li>2つの画面の差（右−左）が、素案どおり再開発が行われたときの変化の目安です。差のほぼすべては、再開発で増える車によるものです。</li>
+<li>2つの画面の差（右−左）は、補50を整備せず、素案どおり再開発が行われたときの変化の目安です。差には、補50がなくなることによる車の流れの変化と、再開発で増える車の両方が含まれます。</li>
 <li>地図の拡大縮小は、PC では Ctrl（Mac は ⌘）を押しながらスクロール、スマホは2本指です。</li></ul>
 <p class="src">道路網：OpenStreetMap（© OpenStreetMap contributors, ODbL）を加工。交通量は、需要の置き方を変えた複数の計算のうち代表ケース（車の発生＝中、バスターミナル＝資料の約22台/時、二丁目西のバスターミナルなし）。実測で較正しておらず、数値は仮定にもとづく相対比較です。地図ライブラリ MapLibre GL（BSD）。</p></div>
 </main>
@@ -52,10 +52,10 @@ function build(sc,seed){
  const links=L[sc].filter(e=>e.q>0&&e.c.length>1).map(e=>{const cum=[0];let m=0;for(let i=1;i<e.c.length;i++){m+=Math.hypot((e.c[i][0]-e.c[i-1][0])*91000,(e.c[i][1]-e.c[i-1][1])*111000);cum.push(m)}
   const v=28;return{c:e.c,cum,len:m,v,vc:e.vc,N:e.q*(m/1000)/v}});
  const tot=links.reduce((a,l)=>a+l.N,0),k=VHT[sc].VHT/tot,R=rnd(seed),cars=[];
- links.forEach(l=>{const n=l.N*k,c=Math.floor(n)+(R()<n-Math.floor(n)?1:0);for(let i=0;i<c;i++)cars.push({l,s:R()*l.len})});
+ let acc=0;links.forEach(l=>{acc+=l.N*k;const c=Math.floor(acc);acc-=c;for(let i=0;i<c;i++)cars.push({l,s:R()*l.len})});   // 端数は次の道路に繰り越す（総数が計算値と一致する）
  return{links,cars,col:vc=>vc>=0.8?"#ff6b6b":vc>=0.5?"#ffd166":"#4ec9b0"}}
 const pos=(l,s)=>{let i=1;while(i<l.cum.length-1&&l.cum[i]<s)i++;const a=l.cum[i-1],b=l.cum[i],t=b>a?(s-a)/(b-a):0,p=l.c[i-1],q=l.c[i];return[p[0]+(q[0]-p[0])*t,p[1]+(q[1]-p[1])*t,Math.atan2((q[1]-p[1])*111000,(q[0]-p[0])*91000)]};
-const S=[{sc:"S0",map:"mA",cv:"cA",n:"nA"},{sc:"S2",map:"mB",cv:"cB",n:"nB"}];
+const S=[{sc:"S1",map:"mA",cv:"cA",n:"nA"},{sc:"S2",map:"mB",cv:"cB",n:"nB"}];
 const style={version:8,sources:{},layers:[{id:"bg",type:"background",paint:{"background-color":getComputedStyle(document.body).getPropertyValue("--mapbg")||"#0e1417"}}]};
 const fc=f=>({type:"FeatureCollection",features:f}),ln=(c,p={})=>({type:"Feature",properties:p,geometry:{type:"LineString",coordinates:c}});
 const road=getComputedStyle(document.documentElement).getPropertyValue("--road").trim();
@@ -68,7 +68,7 @@ S.forEach((o,i)=>{o.d=build(o.sc,11+i);$(o.n).textContent=o.d.cars.length.toLoca
   o.m.addSource("bd",{type:"geojson",data:BOUNDARY});o.m.addLayer({id:"bd",type:"line",source:"bd",paint:{"line-color":"#c77dff","line-width":2,"line-dasharray":[3,2],"line-opacity":0.7}})});});
 // 2つの地図を連動
 let lock=false;S.forEach((o,i)=>o.m.on("move",()=>{if(lock)return;lock=true;const p=S[1-i].m;p.jumpTo({center:o.m.getCenter(),zoom:o.m.getZoom(),bearing:0,pitch:0});lock=false}));
-$("diff").innerHTML=`素案−現況：道路上の車 <b>${(S[1].d.cars.length-S[0].d.cars.length>=0?"+":"−")+Math.abs(S[1].d.cars.length-S[0].d.cars.length).toLocaleString()}台</b>（${S[0].d.cars.length.toLocaleString()}台 → ${S[1].d.cars.length.toLocaleString()}台）`;
+$("diff").innerHTML=`素案−補50整備：道路上の車 <b>${(S[1].d.cars.length-S[0].d.cars.length>=0?"+":"−")+Math.abs(S[1].d.cars.length-S[0].d.cars.length).toLocaleString()}台</b>（${S[0].d.cars.length.toLocaleString()}台 → ${S[1].d.cars.length.toLocaleString()}台）`;
 let speed=10,playing=!matchMedia("(prefers-reduced-motion: reduce)").matches,last=performance.now();
 $("spd").innerHTML=[[5,"×5"],[10,"×10"],[30,"×30"]].map(([v,t])=>`<button data-v="${v}" class="${v===speed?"on":""}">${t}</button>`).join(" ");
 $("spd").onclick=e=>{const v=+e.target.dataset.v;if(v){speed=v;[...$("spd").children].forEach(b=>b.classList.toggle("on",+b.dataset.v===v))}};

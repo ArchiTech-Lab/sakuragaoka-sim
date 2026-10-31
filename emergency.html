@@ -31,13 +31,13 @@ th:first-child,td:first-child{text-align:left}th{color:var(--dim);font-weight:60
 <nav class="nav"><a href="index.html">経路の比較</a><a href="dashboard.html">交通状態の比較</a><a class="on" href="emergency.html">緊急車両の到達</a><a href="flow.html">車の流れ</a></nav>
 <div class="src">救急車・消防車が、幹線道路から地区計画区域内の各交差点まで、どの幅の道を通って何本の別ルートで入れるかを、シナリオ別に比べる。</div></div>
 <div class="banner">区の公式推計ではありません。個人による簡易な分析で、道路の幅は国土地理院の幅員区分（5段階）による概略です。電柱・路上駐車・坂・隅切り・はしご車の活動空間は考えていません。消防・救急の実際の到達可否や活動の可否を示すものではありません。</div>
-<div class="src">シナリオ：<b>S0</b>＝現況／<b>S2</b>＝素案（再開発後。さくら坂を廃止し、資料5の道路の拡幅を反映。補50は廃止）。S0とS2の差が、素案どおり再開発が行われたときの変化です。</div>
+<div class="src">シナリオ：<b>S1</b>＝補50を整備した場合（再開発なし。補50は幅員15mを仮定）／<b>S2</b>＝素案（再開発後。さくら坂を廃止し、資料5の道路の拡幅を反映。補50は廃止）。S1とS2の差が、補50を整備せず、素案どおり再開発が行われたときの変化です。</div>
 
 <div class="kpis" id="kpis"></div>
 
 <div class="card"><h2>1. 別ルートの本数（交差点の数）</h2>
 <div style="overflow-x:auto"><table id="t1"></table></div>
-<p class="src">本数＝幹線（国道・主要道路、または幅13m以上）から、その交差点まで、区間を共有しない経路が何本あるか（3本以上はまとめて表示）。<b>1本</b>＝途中のどこか1区間が塞がると到達できない。<b>0本</b>＝その幅以上の道だけでは到達できない。交差点は15m以内をまとめた代表点で、地区計画区域内にS0・S2とも32点。</p></div>
+<p class="src">本数＝幹線（国道・主要道路、または幅13m以上）から、その交差点まで、区間を共有しない経路が何本あるか（3本以上はまとめて表示）。<b>1本</b>＝途中のどこか1区間が塞がると到達できない。<b>0本</b>＝その幅以上の道だけでは到達できない。交差点は15m以内をまとめた代表点で、地区計画区域内にS1は<span id="tg1"></span>点、S2は<span id="tg2"></span>点（補50が通る分、点の数が違う）。</p></div>
 
 <div class="card"><h2>2. 1区間塞がると届かなくなる区間</h2>
 <div style="overflow-x:auto"><table id="t2"></table></div>
@@ -66,14 +66,15 @@ th:first-child,td:first-child{text-align:left}th{color:var(--dim);font-weight:60
 <script src="vendor/maplibre-gl.js"></script><script src="data/emg.js"></script><script src="data/boundary.js"></script><script src="data/seko.js"></script>
 <script>
 const $=id=>document.getElementById(id);
-const SN={S0:"現況",S2:"素案（再開発後）"}, TH={"3m":"3m以上（救急車・ポンプ車の目安）","5.5m":"5.5m以上（6m級＝はしご車の目安の近似）"}, MD={u:"向きを無視（緊急走行）",d:"一方通行を守る"};
+const SN={S1:"補50を整備（再開発なし）",S2:"素案（再開発後）"}, TH={"3m":"3m以上（救急車・ポンプ車の目安）","5.5m":"5.5m以上（6m級＝はしご車の目安の近似）"}, MD={u:"向きを無視（緊急走行）",d:"一方通行を守る"};
 const WC=["#ff4d4d","#ff9f43","#ffd166","#4ec9b0","#6cb4ff"], KC=["#ff4d4d","#ff9f43","#ffd166","#4ec9b0"], KL=["0本（届かない）","1本だけ","2本","3本以上"];
 const SUM=EMG.sum;
+$("tg1").textContent=EMG.sum.S1.targets;$("tg2").textContent=EMG.sum.S2.targets;
 let sc="S2",th="5.5m",md="u",base="pale";
 const hist=(s,t,m)=>SUM[s][t+"_"+(m==="u"?"undirected":"directed")];
-$("kpis").innerHTML=["S0","S2"].map(s=>{const h=hist(s,"5.5m","u"),n=SUM[s].targets;return`<div class="kpi"><span>${s} ${SN[s]}・5.5m以上・向きを無視</span><b>${h[0]}／${h[1]}／${+h[2]+ +h[3]}</b><span>届かない／1本だけ／2本以上（交差点${n}点中）</span></div>`}).join("");
-$("t1").innerHTML="<tr><th>シナリオ</th><th>幅の基準</th><th>一方通行</th><th>0本</th><th>1本</th><th>2本</th><th>3本以上</th><th>交差点</th></tr>"+["S0","S2"].flatMap(s=>["3m","5.5m"].flatMap(t=>["u","d"].map(m=>{const h=hist(s,t,m);return`<tr><td>${s} ${SN[s]}</td><td>${t}以上</td><td>${MD[m]}</td>${[0,1,2,3].map(i=>`<td class="${i<2&&h[i]>0?"w":""}">${h[i]}</td>`).join("")}<td>${SUM[s].targets}</td></tr>`}))).join("");
-$("t2").innerHTML="<tr><th>シナリオ</th><th>幅の基準</th><th>塞がると届かなくなる区間（影響する交差点の数）</th></tr>"+["S0","S2"].flatMap(s=>["3m","5.5m"].map(t=>`<tr><td>${s} ${SN[s]}</td><td>${t}以上</td><td style="text-align:left">${(SUM[s]["critical_links_"+t]||[]).map(([n,c])=>`${n}（${c}）`).join("、")||"なし"}</td></tr>`)).join("");
+$("kpis").innerHTML=["S1","S2"].map(s=>{const h=hist(s,"5.5m","u"),n=SUM[s].targets;return`<div class="kpi"><span>${s} ${SN[s]}・5.5m以上・向きを無視</span><b>${h[0]}／${h[1]}／${+h[2]+ +h[3]}</b><span>届かない／1本だけ／2本以上（交差点${n}点中）</span></div>`}).join("");
+$("t1").innerHTML="<tr><th>シナリオ</th><th>幅の基準</th><th>一方通行</th><th>0本</th><th>1本</th><th>2本</th><th>3本以上</th><th>交差点</th></tr>"+["S1","S2"].flatMap(s=>["3m","5.5m"].flatMap(t=>["u","d"].map(m=>{const h=hist(s,t,m);return`<tr><td>${s} ${SN[s]}</td><td>${t}以上</td><td>${MD[m]}</td>${[0,1,2,3].map(i=>`<td class="${i<2&&h[i]>0?"w":""}">${h[i]}</td>`).join("")}<td>${SUM[s].targets}</td></tr>`}))).join("");
+$("t2").innerHTML="<tr><th>シナリオ</th><th>幅の基準</th><th>塞がると届かなくなる区間（影響する交差点の数）</th></tr>"+["S1","S2"].flatMap(s=>["3m","5.5m"].map(t=>`<tr><td>${s} ${SN[s]}</td><td>${t}以上</td><td style="text-align:left">${(SUM[s]["critical_links_"+t]||[]).map(([n,c])=>`${n}（${c}）`).join("、")||"なし"}</td></tr>`)).join("");
 $("lgw").innerHTML=EMG.cls.map((c,i)=>`<div><span class="sw" style="background:${WC[i]}"></span>${c}</div>`).join("");
 $("lgk").innerHTML=KL.map((c,i)=>`<div><span class="sw" style="background:${KC[i]};height:10px;width:10px;border-radius:5px"></span>${c}</div>`).join("");
 const seg=(id,obj,cur)=>{$(id).innerHTML=Object.entries(obj).map(([k,t])=>`<button data-k="${k}" class="${k===cur?"on":""}">${t}</button>`).join("")};
