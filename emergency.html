@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>桜丘 緊急車両の到達</title>
+<link rel="stylesheet" href="vendor/maplibre-gl.css">
+<style>
+:root{--bg:#0e1417;--fg:#e8eef1;--dim:#8fa3ad;--hi:#4ec9b0;--line:#26333a;--panel:#131c21;--warn:#ffd166;--up:#ff6b6b;--down:#6cb4ff}
+@media (prefers-color-scheme:light){:root{--bg:#f4f7f8;--fg:#1b262c;--dim:#5b6e78;--hi:#0b8f77;--line:#d5dee3;--panel:#fff;--warn:#b27800;--up:#c0392b;--down:#2a6fb0}}
+*{box-sizing:border-box}html,body{margin:0}body{background:var(--bg);color:var(--fg);font:17px/1.7 system-ui,"Hiragino Sans","Noto Sans JP",sans-serif}
+main{max-width:1180px;margin:0 auto;padding:18px 16px 70px;display:grid;gap:14px}
+h1{font-size:24px;margin:0}h2{font-size:19px;margin:0 0 8px}a{color:var(--hi)}
+.banner{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--warn);border-radius:6px;padding:10px 12px;font-size:15px;color:var(--dim)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px}
+.src{color:var(--dim);font-size:14.5px}
+table{width:100%;border-collapse:collapse;font-size:16px}th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums}
+th:first-child,td:first-child{text-align:left}th{color:var(--dim);font-weight:600;font-size:14px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.kpi{border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--panel)}.kpi b{font-size:28px;line-height:1.2;display:block}.kpi span{font-size:14px;color:var(--dim)}
+.up{color:var(--up)}.down{color:var(--down)}.ok{color:var(--hi)}.w{color:var(--warn)}
+.bar{display:inline-block;height:9px;border-radius:4px;vertical-align:middle;margin-left:6px}
+.chip{display:inline-block;border:1px solid var(--line);border-radius:12px;padding:1px 10px;font-size:14px}
+.chip.ok{border-color:var(--hi)}.chip.w{border-color:var(--warn)}
+#wrap{display:grid;grid-template-columns:1fr 300px;gap:12px}#map{height:72vh;min-height:480px;border-radius:6px;border:1px solid var(--line)}
+#ctl{font-size:15px;overflow:auto;max-height:72vh}#ctl h3{font-size:15px;color:var(--hi);margin:12px 0 4px}#ctl h3:first-child{margin-top:0}
+#ctl label{display:block;cursor:pointer;line-height:1.5;margin:2px 0}
+.sw{display:inline-block;width:18px;height:4px;vertical-align:middle;margin-right:5px;border-radius:2px}
+.seg button{background:transparent;color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:5px 10px;font:inherit;font-size:15px;cursor:pointer;margin:0 4px 4px 0}.seg button.on{border-color:var(--hi);color:var(--hi);font-weight:600}
+@media(max-width:860px){#wrap{grid-template-columns:1fr}#ctl{max-height:none}}
+</style></head><body><main>
+<div><h1>桜丘 緊急車両の到達（幅員と迂回路）</h1>
+<div class="src">救急車・消防車が、幹線道路から地区計画区域内の各交差点まで、どの幅の道を通って何本の別ルートで入れるかを、シナリオ別に比べる。 <a href="index.html">経路の比較</a> ／ <a href="dashboard.html">シナリオ比較ダッシュボード</a></div></div>
+<div class="banner">区の公式推計ではありません。個人による簡易な分析で、道路の幅は国土地理院の幅員区分（5段階）による概略です。電柱・路上駐車・坂・隅切り・はしご車の活動空間は考えていません。消防・救急の実際の到達可否や活動の可否を示すものではありません。</div>
+
+<div class="kpis" id="kpis"></div>
+
+<div class="card"><h2>1. 別ルートの本数（交差点の数）</h2>
+<div style="overflow-x:auto"><table id="t1"></table></div>
+<p class="src">本数＝幹線（国道・主要道路、または幅13m以上）から、その交差点まで、区間を共有しない経路が何本あるか（3本以上はまとめて表示）。<b>1本</b>＝途中のどこか1区間が塞がると到達できない。<b>0本</b>＝その幅以上の道だけでは到達できない。交差点は15m以内をまとめた代表点で、地区計画区域内にS0・S2で32点、S3で34点（補50との交点が増える）。</p></div>
+
+<div class="card"><h2>2. 1区間塞がると届かなくなる区間</h2>
+<div style="overflow-x:auto"><table id="t2"></table></div>
+<p class="src">「1本」の交差点について、塞がると到達できなくなる区間の道路名と、影響する交差点の数（向きを無視した場合）。</p></div>
+
+<div class="card"><h2>3. 地図で見る</h2>
+<div id="wrap"><div id="map"></div><div id="ctl">
+<h3>シナリオ</h3><div class="seg" id="scb"></div>
+<h3>通れる幅の基準</h3><div class="seg" id="thb"></div>
+<h3>一方通行</h3><div class="seg" id="mdb"></div>
+<h3>道路の幅（国土地理院の区分）</h3><div id="lgw" class="src"></div>
+<h3>交差点の色＝別ルートの本数</h3><div id="lgk" class="src"></div>
+<h3>範囲</h3>
+<label><input type="checkbox" id="ck-bd" checked> 地区計画の区域（紫破線・概略）</label>
+<label><input type="checkbox" id="ck-sk" checked> 再開発の施行区域（赤・概略）</label>
+<h3>背景の地図（国土地理院）</h3><div id="base"></div>
+<p class="src" style="margin-top:8px">太い破線の道路＝資料5の拡幅後の幅（S2・S3）または補50の仮定幅（15m）で置き換えた区間。交差点をクリックすると本数を表示。</p>
+</div></div></div>
+
+<div class="card"><h2>この結果が言えること／言えないこと</h2>
+<ul><li class="ok">言える：道路網の形と幅の区分から見て、地区内のどこが「1本の道に頼っている」か、再開発（区道の拡幅・さくら坂の廃止）と補50でそれがどう変わるか。</li>
+<li class="w">言えない：実際の到達時間、はしご車の架梯や消防活動の可否、災害時の建物倒壊・火災による閉塞の起こりやすさ。幅は区分（3m／5.5m／13m／19.5m の境）なので、6m道路の判定は5.5mで近似している。</li></ul>
+<p class="src">考え方：別ルートの本数は辺独立経路数（最小カット）。向きを無視する場合は、緊急走行で一方通行等の規制が除外され得ることを想定。一方通行を守る場合は、幹線から交差点へ向かう向きだけを数える。S2・S3 は資料5の全幅員（区道1031・432・448・1078を5.5〜13m、1076の施行区域に接する区間を13〜19.5m）を反映。1031の線形整序・新設の区画道路は未反映。<br>
+出典：道路の幅＝<a href="https://maps.gsi.go.jp/development/vt.html">国土地理院 ベクトルタイル（最適化ベクトルタイル）</a>の道路中心線の幅員区分を、OpenStreetMap（© OpenStreetMap contributors, ODbL）の道路網に重ねて付与。背景地図：地理院タイル。地図ライブラリ MapLibre GL（BSD）。</p>
+</main>
+<script src="vendor/maplibre-gl.js"></script><script src="data/emg.js"></script><script src="data/boundary.js"></script><script src="data/seko.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const SN={S0:"現況",S2:"再開発後（補50なし）",S3:"補50＋再開発"}, TH={"3m":"3m以上（救急車・ポンプ車の目安）","5.5m":"5.5m以上（6m級＝はしご車の目安の近似）"}, MD={u:"向きを無視（緊急走行）",d:"一方通行を守る"};
+const WC=["#ff4d4d","#ff9f43","#ffd166","#4ec9b0","#6cb4ff"], KC=["#ff4d4d","#ff9f43","#ffd166","#4ec9b0"], KL=["0本（届かない）","1本だけ","2本","3本以上"];
+const SUM=EMG.sum;
+let sc="S2",th="5.5m",md="u",base="pale";
+const hist=(s,t,m)=>SUM[s][t+"_"+(m==="u"?"undirected":"directed")];
+$("kpis").innerHTML=["S0","S2","S3"].map(s=>{const h=hist(s,"5.5m","u"),n=SUM[s].targets;return`<div class="kpi"><span>${s} ${SN[s]}・5.5m以上・向きを無視</span><b>${h[0]}／${h[1]}／${+h[2]+ +h[3]}</b><span>届かない／1本だけ／2本以上（交差点${n}点中）</span></div>`}).join("");
+$("t1").innerHTML="<tr><th>シナリオ</th><th>幅の基準</th><th>一方通行</th><th>0本</th><th>1本</th><th>2本</th><th>3本以上</th><th>交差点</th></tr>"+["S0","S2","S3"].flatMap(s=>["3m","5.5m"].flatMap(t=>["u","d"].map(m=>{const h=hist(s,t,m);return`<tr><td>${s} ${SN[s]}</td><td>${t}以上</td><td>${MD[m]}</td>${[0,1,2,3].map(i=>`<td class="${i<2&&h[i]>0?"w":""}">${h[i]}</td>`).join("")}<td>${SUM[s].targets}</td></tr>`}))).join("");
+$("t2").innerHTML="<tr><th>シナリオ</th><th>幅の基準</th><th>塞がると届かなくなる区間（影響する交差点の数）</th></tr>"+["S0","S2","S3"].flatMap(s=>["3m","5.5m"].map(t=>`<tr><td>${s} ${SN[s]}</td><td>${t}以上</td><td style="text-align:left">${(SUM[s]["critical_links_"+t]||[]).map(([n,c])=>`${n}（${c}）`).join("、")||"なし"}</td></tr>`)).join("");
+$("lgw").innerHTML=EMG.cls.map((c,i)=>`<div><span class="sw" style="background:${WC[i]}"></span>${c}</div>`).join("");
+$("lgk").innerHTML=KL.map((c,i)=>`<div><span class="sw" style="background:${KC[i]};height:10px;width:10px;border-radius:5px"></span>${c}</div>`).join("");
+const seg=(id,obj,cur)=>{$(id).innerHTML=Object.entries(obj).map(([k,t])=>`<button data-k="${k}" class="${k===cur?"on":""}">${t}</button>`).join("")};
+const GSI=[["pale","淡色地図","pale/{z}/{x}/{y}.png"],["std","標準地図","std/{z}/{x}/{y}.png"],["photo","航空写真","seamlessphoto/{z}/{x}/{y}.jpg"]];
+$("base").innerHTML=`<label><input type="radio" name="bs" value="none"> なし（道路だけ）</label>`+GSI.map(g=>`<label><input type="radio" name="bs" value="${g[0]}" ${g[0]===base?"checked":""}> ${g[1]}</label>`).join("");
+const dark=matchMedia("(prefers-color-scheme: dark)").matches;
+const style={version:8,sources:{},layers:[{id:"bg",type:"background",paint:{"background-color":dark?"#0e1417":"#f4f7f8"}}]};
+GSI.forEach(g=>{style.sources[g[0]]={type:"raster",tiles:["https://cyberjapandata.gsi.go.jp/xyz/"+g[2]],tileSize:256,maxzoom:18,attribution:"<a href='https://maps.gsi.go.jp/development/ichiran.html'>地理院タイル</a>"};
+ style.layers.push({id:"b-"+g[0],type:"raster",source:g[0],layout:{visibility:g[0]===base?"visible":"none"},paint:{"raster-opacity":0.6}})});
+const map=new maplibregl.Map({container:"map",style,center:[139.7005,35.6565],zoom:16,attributionControl:{compact:true,customAttribution:"道路網 © OpenStreetMap contributors／幅員区分 国土地理院"}});
+map.addControl(new maplibregl.NavigationControl({showCompass:false}),"top-left");
+const fc=f=>({type:"FeatureCollection",features:f});
+const edges=()=>fc(EMG.sc[sc].e.map(e=>({type:"Feature",properties:{w:e.w,o:e.o},geometry:{type:"LineString",coordinates:e.c}})));
+const nodes=()=>fc(EMG.sc[sc].n.map(([x,y,p])=>({type:"Feature",properties:{k:p[th+"_"+md]??0},geometry:{type:"Point",coordinates:[x,y]}})));
+function refresh(){seg("scb",Object.fromEntries(Object.entries(SN).map(([k,v])=>[k,k+" "+v])),sc);seg("thb",TH,th);seg("mdb",MD,md);
+ if(map.getSource("e")){map.getSource("e").setData(edges());map.getSource("n").setData(nodes())}}
+map.on("load",()=>{
+ map.addSource("bd",{type:"geojson",data:BOUNDARY});map.addLayer({id:"bd",type:"line",source:"bd",paint:{"line-color":"#b07cff","line-width":2.5,"line-dasharray":[3,2]}});
+ map.addSource("sk",{type:"geojson",data:SEKO});map.addLayer({id:"sk",type:"line",source:"sk",paint:{"line-color":"#ff6b6b","line-width":2}});
+ map.addSource("e",{type:"geojson",data:edges()});
+ map.addLayer({id:"e",type:"line",source:"e",filter:["==",["get","o"],0],layout:{"line-cap":"round"},paint:{"line-color":["match",["get","w"],0,WC[0],1,WC[1],2,WC[2],3,WC[3],WC[4]],"line-width":["interpolate",["linear"],["zoom"],14,1.5,17,4]}});
+ map.addLayer({id:"e-o",type:"line",source:"e",filter:["==",["get","o"],1],paint:{"line-color":["match",["get","w"],0,WC[0],1,WC[1],2,WC[2],3,WC[3],WC[4]],"line-width":["interpolate",["linear"],["zoom"],14,3,17,7],"line-dasharray":[2,1]}});
+ map.addSource("n",{type:"geojson",data:nodes()});
+ map.addLayer({id:"n",type:"circle",source:"n",paint:{"circle-radius":["interpolate",["linear"],["zoom"],14,4,17,9],"circle-color":["match",["get","k"],0,KC[0],1,KC[1],2,KC[2],KC[3]],"circle-stroke-color":dark?"#0e1417":"#fff","circle-stroke-width":1.5}});
+ map.on("click","n",e=>new maplibregl.Popup().setLngLat(e.lngLat).setHTML(`<div style="color:#111;font-size:14px">${SN[sc]}・${th}以上・${MD[md]}<br>別ルート：<b>${KL[e.features[0].properties.k]}</b></div>`).addTo(map));
+ map.on("mouseenter","n",()=>map.getCanvas().style.cursor="pointer");map.on("mouseleave","n",()=>map.getCanvas().style.cursor="");
+});
+$("scb").onclick=e=>{if(e.target.dataset.k){sc=e.target.dataset.k;refresh()}};
+$("thb").onclick=e=>{if(e.target.dataset.k){th=e.target.dataset.k;refresh()}};
+$("mdb").onclick=e=>{if(e.target.dataset.k){md=e.target.dataset.k;refresh()}};
+$("ck-bd").onchange=e=>map.setLayoutProperty("bd","visibility",e.target.checked?"visible":"none");
+$("ck-sk").onchange=e=>map.setLayoutProperty("sk","visibility",e.target.checked?"visible":"none");
+document.querySelectorAll("input[name=bs]").forEach(r=>r.onchange=()=>GSI.forEach(g=>map.setLayoutProperty("b-"+g[0],"visibility",g[0]===r.value?"visible":"none")));
+refresh();
+</script></body></html>

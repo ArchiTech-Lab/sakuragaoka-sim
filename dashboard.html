@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>桜丘 シナリオ比較ダッシュボード</title>
+<link rel="stylesheet" href="vendor/maplibre-gl.css">
+<style>
+:root{--bg:#0e1417;--fg:#e8eef1;--dim:#8fa3ad;--hi:#4ec9b0;--line:#26333a;--panel:#131c21;--warn:#ffd166;--up:#ff6b6b;--down:#6cb4ff}
+@media (prefers-color-scheme:light){:root{--bg:#f4f7f8;--fg:#1b262c;--dim:#5b6e78;--hi:#0b8f77;--line:#d5dee3;--panel:#fff;--warn:#b27800;--up:#c0392b;--down:#2a6fb0}}
+*{box-sizing:border-box}html,body{margin:0}body{background:var(--bg);color:var(--fg);font:17px/1.7 system-ui,"Hiragino Sans","Noto Sans JP",sans-serif}
+main{max-width:1180px;margin:0 auto;padding:18px 16px 70px;display:grid;gap:14px}
+h1{font-size:24px;margin:0}h2{font-size:19px;margin:0 0 8px}a{color:var(--hi)}
+.banner{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--warn);border-radius:6px;padding:10px 12px;font-size:15px;color:var(--dim)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px}
+.src{color:var(--dim);font-size:14.5px}
+table{width:100%;border-collapse:collapse;font-size:16px}th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums}
+th:first-child,td:first-child{text-align:left}th{color:var(--dim);font-weight:600;font-size:14px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.kpi{border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--panel)}.kpi b{font-size:28px;line-height:1.2;display:block}.kpi span{font-size:14px;color:var(--dim)}
+.up{color:var(--up)}.down{color:var(--down)}.ok{color:var(--hi)}.w{color:var(--warn)}
+.bar{display:inline-block;height:9px;border-radius:4px;vertical-align:middle;margin-left:6px}
+.chip{display:inline-block;border:1px solid var(--line);border-radius:12px;padding:1px 10px;font-size:14px}
+.chip.ok{border-color:var(--hi)}.chip.w{border-color:var(--warn)}
+#wrap{display:grid;grid-template-columns:1fr 300px;gap:12px}#map{height:72vh;min-height:480px;border-radius:6px;border:1px solid var(--line)}
+#ctl{font-size:15px;overflow:auto;max-height:72vh}#ctl h3{font-size:15px;color:var(--hi);margin:12px 0 4px}#ctl h3:first-child{margin-top:0}
+#ctl label{display:block;cursor:pointer;line-height:1.5;margin:2px 0}
+.sw{display:inline-block;width:18px;height:4px;vertical-align:middle;margin-right:5px;border-radius:2px}
+.seg button{background:transparent;color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:5px 10px;font:inherit;font-size:15px;cursor:pointer;margin:0 4px 4px 0}.seg button.on{border-color:var(--hi);color:var(--hi);font-weight:600}
+@media(max-width:860px){#wrap{grid-template-columns:1fr}#ctl{max-height:none}}
+</style></head><body><main>
+<div><h1>桜丘 シナリオ別の交通状態の比較</h1>
+<div class="src">補助第50号線（補50）の有無と再開発による、桜丘周辺の道路網の交通状態を、同じ仮定で並べて比べる。 <a href="index.html">経路の比較（個別のルート）</a> ／ <a href="emergency.html">緊急車両の到達</a></div></div>
+<div class="banner">区の公式推計ではありません。個人による簡易なシミュレーションで、数値は仮定にもとづく相対比較（仮定による例示）です。実測で較正しておらず、実際の渋滞の発生や混雑度の水準を示すものではありません。信号の待ち時間・歩行者・バス運行・工事中の交通は計算に入れていません。</div>
+
+<div class="kpis" id="kpis"></div>
+
+<div class="card"><h2>1. シナリオ別の指標（代表ケース）</h2>
+<div style="overflow-x:auto"><table id="t1"></table></div>
+<p class="src" id="t1n"></p></div>
+
+<div class="card"><h2>2. 差の要因分解</h2>
+<div style="overflow-x:auto"><table id="t2"></table></div>
+<p class="src">S3−S2＝補50を整備した効果（同じ需要・同じ区画道路）／S2−S4＝区画道路の廃道の効果（さくら坂〔区道1032号〕を廃止し、区道432号を相互通行化、448号を西向き一方通行に。1031・1078の整序・拡幅は未反映）／S4−S0＝再開発の需要そのものの効果。右の列は、車の発生量（低・中・高）×BT台数（低・基準・高）×二丁目西BT（有・無）の18通りでの範囲。</p></div>
+
+<div class="card"><h2>3. 補50と再開発の効果（結果の要約）</h2>
+<div style="overflow-x:auto"><table id="t3"></table></div>
+<p class="src">いずれも同じ仮定のもとでの相対的な比較で、結論は上の「言えること／言えないこと」の範囲に限ります。計算の根拠・仮定・出典の詳細は、同時に公開する note 記事（有料部分）に掲載します。</p></div>
+
+<div class="card"><h2>4. 構造から見たシナリオ比較（12方向の平均）</h2>
+<div style="overflow-x:auto"><table id="t4"></table></div>
+<p class="src">需要を使わない道路網の形の指標。6組の起終点×往復＝12方向（事前に固定）。「気になる点」は、狭い道が多い・交差点や折れが多い・通り抜け容量が小さい・迂回路が乏しい、の4項目のうち該当する数（目安であり予測ではない）。</p></div>
+
+<div class="card"><h2>5. 地区外の道路の負担と、幹線が通れなくなったときの冗長性</h2>
+<div id="ext"></div></div>
+
+<div class="card"><h2>6. 地図で見る</h2>
+<div id="wrap"><div id="map"></div><div id="ctl">
+<h3>表示するシナリオ</h3><div class="seg" id="scb"></div>
+<h3>道路の色分け</h3><div class="seg" id="modeb"></div>
+<div id="legend" class="src" style="margin:4px 0"></div>
+<h3>範囲</h3>
+<label><input type="checkbox" id="ck-bd" checked> 地区計画の区域（縦覧図から概略）</label>
+<label><input type="checkbox" id="ck-sk" checked> 再開発の施行区域（資料5 p3から概略・約2.2ha）</label>
+<label><input type="checkbox" id="ck-h50" checked> 補50の位置（概略）</label>
+<h3>背景の地図（国土地理院）</h3>
+<div id="base"></div>
+<label>背景の濃さ <input type="range" id="op" min="0.2" max="1" step="0.1" value="0.8" style="width:120px"></label>
+<p class="src" style="margin-top:8px">背景は閲覧するブラウザが地理院タイルを読み込みます。道路の色は代表ケース（車の発生＝中、BT＝基準、二丁目西BTなし）の配分結果で、絶対値には意味がありません。</p>
+</div></div></div>
+
+<div class="card"><h2>この結果が言えること／言えないこと</h2>
+<ul><li class="ok">言える：同じ仮定のもとで、補50の有無によって、通り抜け経路の形（距離・右左折・1車線区間の割合・迂回路）と、配分上の流れの偏りがどう変わるか。どの仮定で結論が変わるか。</li>
+<li class="w">言えない：実際の渋滞の有無・混雑度の水準、再開発の交通影響の大小、実際の所要時間。需要の置き方で符号が変わる指標は、結論にしない。</li></ul>
+<p class="src">道路網：OpenStreetMap（© OpenStreetMap contributors, ODbL）を加工。背景地図：<a href="https://maps.gsi.go.jp/development/ichiran.html">地理院タイル</a>（国土地理院）。地図ライブラリ MapLibre GL（BSD）。補50・地区計画区域の線は渋谷区の縦覧図を位置合わせした概略で、公式の線形・区域ではありません。</p></div>
+</main>
+<script src="vendor/maplibre-gl.js"></script>
+<script src="data/l0.js"></script><script src="data/l1.js"></script><script src="data/boundary.js"></script><script src="data/seko.js"></script><script src="data/ext.js"></script>
+<script>
+const $=id=>document.getElementById(id), R=L1D.rows, S=L1D.sens;
+const SN={S0:"現況",S1:"補50のみ",S2:"再開発後（補50なし）",S3:"補50＋再開発",S4:"再開発の需要のみ"};
+const f0=x=>Math.round(x).toLocaleString(), f1=x=>(Math.round(x*10)/10).toLocaleString(), f2=x=>(Math.round(x*100)/100).toFixed(2);
+const sg=(x,d=0)=>(x>0?"+":x<0?"−":"±")+Math.abs(d==2?Math.round(x*100)/100:d==1?Math.round(x*10)/10:Math.round(x)).toLocaleString();
+const grid=sc=>R.filter(r=>r.scenario===sc), key=r=>r.car+"|"+r.bt+"|"+r.nishi2;
+const rep=sc=>S.dispersed[sc];   // 代表ケース＝車 mid・BT base・二丁目西BTなし
+const M=[["VKT","総走行距離（台km/時）",f0],["VHT","総所要時間（台時間/時）",f0],["tt_fw_s","桜丘西口→鉢山町（混雑後の所要・秒）",f0],["tt_bw_s","鉢山町→桜丘西口（秒）",f0],["vc246_max","国道246（桜丘付近）の最大 V/C",f2],["local_flow","桜丘付近の区画道路の流量合計（台/時）",f0],["h50_mean_flow","補50の平均流量（台/時）",f0]];
+// 範囲（18通り）で S3−S2 の差
+const diffRange=(m,a,b)=>{const A={},B={};grid(a).forEach(r=>A[key(r)]=r[m]);grid(b).forEach(r=>B[key(r)]=r[m]);const d=Object.keys(A).map(k=>B[k]-A[k]);return[Math.min(...d),Math.max(...d)]};
+// KPI
+{const a=rep("S2"),b=rep("S3"),t=(v,l,c)=>`<div class="kpi"><b class="${c||""}">${v}</b><span>${l}</span></div>`;
+ const dt=a.tt_fw_s-b.tt_fw_s;
+ $("kpis").innerHTML=t(sg(-dt)+"秒","桜丘西口→鉢山町の所要の変化（補50あり−なし）",dt>0?"down":"up")+t(sg(b.VKT-a.VKT)+" 台km/時","総走行距離の変化（補50あり−なし）",b.VKT<a.VKT?"down":"up")+t(sg(b.vc246_max-a.vc246_max,2),"国道246 最大V/Cの変化（桜丘付近）",b.vc246_max<a.vc246_max?"down":"up")+t(sg(b.local_flow-a.local_flow)+" 台/時","区画道路の流量の変化（置き方で符号が変わる）","w");}
+// 表1
+{let h="<tr><th>指標</th>"+["S0","S1","S2","S3","S4"].map(s=>`<th>${s}<br><span style="font-weight:400">${SN[s]}</span></th>`).join("")+"</tr>";
+ M.forEach(([m,l,f])=>{h+=`<tr><td>${l}</td>`+["S0","S1","S2","S3","S4"].map(s=>`<td>${f(rep(s)[m])}</td>`).join("")+"</tr>"});
+ $("t1").innerHTML=h;
+ $("t1n").textContent="代表ケース＝車の発生は中位、バスターミナルは資料の約22台/時、二丁目西BTなし。需要の配分の収束（相対ギャップ）は全ケースで0.002以下。S1は再開発の需要を含まず、S4は道路を現況のままにして再開発の需要だけを加えたもの。";}
+// 表2
+{const cmp=[["S3 − S2","補50の効果","S2","S3"],["S2 − S4","区画道路の変更の効果","S4","S2"],["S4 − S0","再開発の需要の効果","S0","S4"]];
+ let h="<tr><th>指標</th>"+cmp.map(c=>`<th>${c[0]}<br><span style="font-weight:400">${c[1]}</span></th>`).join("")+"<th>S3−S2 の18通りの範囲</th></tr>";
+ M.forEach(([m,l,f])=>{const d=m==="vc246_max"?2:m==="local_flow"||m==="h50_mean_flow"||m.startsWith("tt")||m==="VHT"||m==="VKT"?0:0;
+  const cell=(a,b)=>{const v=rep(b)[m]-rep(a)[m];return`<td class="${v>0?"up":v<0?"down":""}">${sg(v,m==="vc246_max"?2:0)}</td>`};
+  const [lo,hi]=diffRange(m,"S2","S3");
+  h+=`<tr><td>${l}</td>`+cmp.map(c=>cell(c[2],c[3])).join("")+`<td>${sg(lo,m==="vc246_max"?2:0)} 〜 ${sg(hi,m==="vc246_max"?2:0)}</td></tr>`});
+ $("t2").innerHTML=h;}
+// 表3（公開版：結果のみ）
+{const a=rep("S2"),b=rep("S3"),s0=rep("S0"),ca=S.concentrated.S2,cb=S.concentrated.S3,cs0=S.concentrated.S0;
+ const h1min=Math.min(...grid("S2").map(r=>r.tt_fw_s-grid("S3").find(x=>key(x)===key(r)).tt_fw_s));
+ const h1pct=Math.min(...grid("S2").map(r=>100*(r.tt_fw_s-grid("S3").find(x=>key(x)===key(r)).tt_fw_s)/r.tt_fw_s));
+ const h2min=Math.min(...grid("S2").map(r=>r.vc246_max-grid("S3").find(x=>key(x)===key(r)).vc246_max));
+ const h3=(100*(a.local_flow-s0.local_flow)/Math.max(1,s0.local_flow));
+ const k=Object.keys(L0.routes.S2).filter(q=>L0.routes.S2[q]&&L0.routes.S3[q]);
+ const rt=k.map(q=>L0.routes.S2[q].R-L0.routes.S3[q].R), nDown=rt.filter(x=>x>=1).length, nUp=rt.filter(x=>x<0).length;
+ const ls=(x,y)=>x>0&&y>0?"+":x<0&&y<0?"−":"符号が変わる";
+ const dLoc=b.local_flow-a.local_flow, cLoc=cb.local_flow-ca.local_flow;
+ const rows=[
+  ["補50による通り抜け所要時間の短縮（最小）",`最小 ${f0(h1min)}秒（${f0(h1pct)}%）`],
+  ["補50による国道246の混み具合の低下（最小）",`最小 ${f2(h2min)}（置き方：分散 ${f2(a.vc246_max-b.vc246_max)}／集中 ${f2(ca.vc246_max-cb.vc246_max)}）。流入の仮定に依存し、結論にしない`],
+  ["再開発による区画道路の流れの増減（S2対S0）",`${sg(h3)}%（集中：${sg(100*(ca.local_flow-cs0.local_flow)/Math.max(1,cs0.local_flow))}%）`],
+  ["補50で右折が減る方向の数",`12方向中 減る${nDown}／増える${nUp}`],
+  ["補50が区画道路に引き込む流れ（S3−S2）",`分散 ${sg(dLoc)}台/時／集中 ${sg(cLoc)}台/時。`+(ls(dLoc,cLoc)==="符号が変わる"?"需要の置き方で符号が変わるため言えない":"どちらの置き方でも"+ls(dLoc,cLoc))]];
+ $("t3").innerHTML="<tr><th>指標</th><th>結果</th></tr>"+rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join("");}
+// 表4
+{const keys=Object.keys(L0.routes.S0).filter(q=>L0.routes.S0[q]);const sc=["S0","S1","S2","S3"];
+ const flags=r=>{const t=r.st;return(t.share_1lane>=0.5)+(r.bends>=3||t.links_per_km>=9)+(t.corridor_cap<3000)+(t.disjoint<=1||t.cut_links>0)};
+ const avg=(s,fn)=>{const v=keys.map(q=>L0.routes[s][q]).filter(Boolean).map(fn);return v.reduce((a,b)=>a+b,0)/v.length};
+ const rows=[["所要時間（ターン込・自由流、秒）",s=>f0(avg(s,r=>r.total_s))],["距離（m）",s=>f0(avg(s,r=>r.m))],["右折の回数",s=>f1(avg(s,r=>r.R))],["折れ（右左折・Uターン）の回数",s=>f1(avg(s,r=>r.bends))],["1車線区間の割合（%）",s=>f0(100*avg(s,r=>r.st.share_1lane))],["交差点の数（1kmあたり）",s=>f1(avg(s,r=>r.st.links_per_km))],["通り抜け容量（台/時）",s=>f0(avg(s,r=>r.st.corridor_cap))],["独立な経路の本数",s=>f1(avg(s,r=>r.st.disjoint))],["1か所途絶時の最悪の所要（秒）",s=>f0(avg(s,r=>r.st.detour_worst_s))],["「気になる点」の該当数（0〜4）",s=>f1(avg(s,flags))]];
+ $("t4").innerHTML="<tr><th>指標（12方向の平均）</th>"+sc.map(s=>`<th>${s}<br><span style="font-weight:400">${SN[s]}</span></th>`).join("")+"</tr>"+rows.map(([l,f])=>`<tr><td>${l}</td>`+sc.map(s=>`<td>${f(s)}</td>`).join("")+"</tr>").join("");}
+
+// ---- 地図
+const GSI=[["pale","淡色地図","pale/{z}/{x}/{y}.png"],["std","標準地図","std/{z}/{x}/{y}.png"],["photo","航空写真","seamlessphoto/{z}/{x}/{y}.jpg"],["hill","陰影起伏図","hillshademap/{z}/{x}/{y}.png"],["relief","色別標高図","relief/{z}/{x}/{y}.png"]];
+let sc="S3",mode="vc",base="pale";
+const dark=matchMedia("(prefers-color-scheme: dark)").matches;
+$("base").innerHTML=`<label><input type="radio" name="bs" value="none"> なし（道路だけ）</label>`+GSI.map(g=>`<label><input type="radio" name="bs" value="${g[0]}" ${g[0]===base?"checked":""}> ${g[1]}</label>`).join("");
+$("scb").innerHTML=["S0","S1","S2","S3","S4"].filter(s=>L1D.links[s]).map(s=>`<button data-k="${s}" class="${s===sc?"on":""}">${s} ${SN[s]}</button>`).join("");
+$("modeb").innerHTML=[["vc","V/C（配分上の混み具合）"],["dq","流量の差（S3−S2）"]].map(([k,t])=>`<button data-k="${k}" class="${k===mode?"on":""}">${t}</button>`).join("");
+const style={version:8,sources:{},layers:[{id:"bg",type:"background",paint:{"background-color":dark?"#0e1417":"#f4f7f8"}}]};
+GSI.forEach(g=>{style.sources[g[0]]={type:"raster",tiles:["https://cyberjapandata.gsi.go.jp/xyz/"+g[2]],tileSize:256,maxzoom:g[0]==="relief"||g[0]==="hill"?15:18,attribution:"<a href='https://maps.gsi.go.jp/development/ichiran.html'>地理院タイル</a>"};
+ style.layers.push({id:"b-"+g[0],type:"raster",source:g[0],layout:{visibility:g[0]===base?"visible":"none"},paint:{"raster-opacity":0.8}})});
+const map=new maplibregl.Map({container:"map",style,center:[139.6995,35.6545],zoom:14.3,attributionControl:{compact:true,customAttribution:"道路網 © OpenStreetMap contributors"}});
+map.addControl(new maplibregl.NavigationControl({showCompass:false}),"top-left");
+const fc=f=>({type:"FeatureCollection",features:f}), ln=(c,p)=>({type:"Feature",properties:p,geometry:{type:"LineString",coordinates:c}});
+const lk=e=>e.c[0].join(",")+"|"+e.c[e.c.length-1].join(",");
+function feats(){
+ if(mode==="vc")return fc((L1D.links[sc]||[]).map(e=>ln(e.c,{vc:e.vc,q:e.q,n:e.n,d:0})));
+ const A={},B={};L1D.links.S2.forEach(e=>A[lk(e)]=e);L1D.links.S3.forEach(e=>B[lk(e)]=e);
+ const ks=new Set([...Object.keys(A),...Object.keys(B)]);
+ return fc([...ks].map(k=>{const e=B[k]||A[k],d=(B[k]?B[k].q:0)-(A[k]?A[k].q:0);return ln(e.c,{vc:0,q:Math.abs(d),n:e.n,d})}).filter(f=>Math.abs(f.properties.d)>=20));}
+function legend(){$("legend").innerHTML=mode==="vc"?[["#5a6b74","V/C 0.5未満"],["#ffd166","0.5〜0.8"],["#ff9f43","0.8〜1.0"],["#ff4d4d","1.0以上"]].map(([c,t])=>`<span class="sw" style="background:${c}"></span>${t}`).join("<br>")+"<br>太さ＝流量":`<span class="sw" style="background:#ff6b6b"></span>流量が増えた（補50あり−なし）<br><span class="sw" style="background:#6cb4ff"></span>流量が減った<br>20台/時未満の差は非表示。太さ＝差の大きさ`}
+map.on("load",()=>{
+ map.addSource("lk",{type:"geojson",data:feats()});
+ map.addLayer({id:"lk",type:"line",source:"lk",layout:{"line-cap":"round"},paint:{"line-color":["case",["==",["get","d"],0],["step",["get","vc"],"#5a6b74",0.5,"#ffd166",0.8,"#ff9f43",1.0,"#ff4d4d"],[">",["get","d"],0],"#ff6b6b","#6cb4ff"],"line-width":["interpolate",["linear"],["get","q"],0,1,200,2.5,1000,5,3000,9],"line-opacity":0.92}});
+ map.addSource("bd",{type:"geojson",data:BOUNDARY});
+ map.addLayer({id:"bd",type:"line",source:"bd",paint:{"line-color":"#c77dff","line-width":3,"line-dasharray":[3,2]}});
+ map.addSource("sk",{type:"geojson",data:SEKO});
+ map.addLayer({id:"sk-f",type:"fill",source:"sk",paint:{"fill-color":"#ff6b6b","fill-opacity":0.18}});
+ map.addLayer({id:"sk",type:"line",source:"sk",paint:{"line-color":"#ff6b6b","line-width":3}});
+ map.addSource("h50",{type:"geojson",data:fc([ln(L0.hojo50,{})])});
+ map.addLayer({id:"h50",type:"line",source:"h50",paint:{"line-color":"#ffd166","line-width":3,"line-dasharray":[2,1.5]}});
+ map.on("click","lk",e=>{const p=e.features[0].properties;new maplibregl.Popup().setLngLat(e.lngLat).setHTML(`<div style="color:#111;font-size:14px"><b>${p.n||"（名称なし）"}</b><br>${p.d?"流量の差："+p.d+"台/時":"V/C "+p.vc+"／流量 "+p.q+"台/時"}</div>`).addTo(map)});
+ legend();
+});
+function refresh(){if(map.getSource("lk"))map.getSource("lk").setData(feats());legend();
+ document.querySelectorAll("#scb button").forEach(b=>b.classList.toggle("on",b.dataset.k===sc));document.querySelectorAll("#modeb button").forEach(b=>b.classList.toggle("on",b.dataset.k===mode));
+ if(map.getLayer("h50"))map.setLayoutProperty("h50","visibility",$("ck-h50").checked?"visible":"none")}
+$("scb").onclick=e=>{if(e.target.dataset.k){sc=e.target.dataset.k;if(mode==="dq")mode="vc";refresh()}};
+$("modeb").onclick=e=>{if(e.target.dataset.k){mode=e.target.dataset.k;refresh()}};
+$("ck-bd").onchange=e=>map.setLayoutProperty("bd","visibility",e.target.checked?"visible":"none");$("ck-h50").onchange=refresh;$("ck-sk").onchange=e=>["sk","sk-f"].forEach(i=>map.setLayoutProperty(i,"visibility",e.target.checked?"visible":"none"));
+document.querySelectorAll("input[name=bs]").forEach(r=>r.onchange=()=>{GSI.forEach(g=>map.setLayoutProperty("b-"+g[0],"visibility",g[0]===r.value?"visible":"none"))});
+$("op").oninput=e=>GSI.forEach(g=>map.setPaintProperty("b-"+g[0],"raster-opacity",parseFloat(e.target.value)));
+</script></body></html>
