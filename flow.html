@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>桜丘 車の流れのイメージ（現況と素案）</title>
+<link rel="stylesheet" href="vendor/maplibre-gl.css">
+<style>
+:root{--bg:#0e1417;--fg:#e8eef1;--dim:#8fa3ad;--hi:#4ec9b0;--line:#26333a;--panel:#131c21;--warn:#ffd166;--road:#2c3a42;--mapbg:#0e1417}
+@media (prefers-color-scheme:light){:root{--bg:#f4f7f8;--fg:#1b262c;--dim:#5b6e78;--hi:#0b8f77;--line:#d5dee3;--panel:#fff;--warn:#b27800;--road:#c3cfd5;--mapbg:#f4f7f8}}
+*{box-sizing:border-box}html,body{margin:0}body{background:var(--bg);color:var(--fg);font:17px/1.7 system-ui,"Hiragino Sans","Noto Sans JP",sans-serif}
+main{max-width:1380px;margin:0 auto;padding:18px 16px 70px;display:grid;gap:14px}main>*{min-width:0}
+h1{font-size:24px;margin:0}h2{font-size:19px;margin:0 0 8px}a{color:var(--hi)}
+.nav{display:flex;flex-wrap:wrap;gap:4px;margin:6px 0 8px}.nav a{font-size:14px;text-decoration:none;color:var(--dim);border:1px solid var(--line);border-radius:14px;padding:2px 10px}.nav a.on{color:var(--hi);border-color:var(--hi);font-weight:600}
+.banner{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--warn);border-radius:6px;padding:10px 12px;font-size:15px;color:var(--dim)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px}
+.src{color:var(--dim);font-size:14.5px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+button{background:transparent;color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:7px 14px;font:inherit;font-size:15px;cursor:pointer}button.on{border-color:var(--hi);color:var(--hi);font-weight:600}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pane{position:relative;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--mapbg)}
+.pane .m{height:68vh;min-height:420px}.pane canvas{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}
+.tag{position:absolute;left:10px;top:10px;z-index:3;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:6px 12px;box-shadow:0 1px 4px #0004}
+.tag b{font-size:17px}.tag .n{font-size:28px;font-weight:700;line-height:1.15;display:block;font-variant-numeric:tabular-nums}
+.dot{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin:0 3px 0 10px}
+.diff{font-size:20px}.diff b{color:var(--warn)}
+@media(max-width:860px){.pair{grid-template-columns:1fr}.pane .m{height:46vh;min-height:300px}}
+</style></head><body><main>
+<div><h1>桜丘 車の流れのイメージ（現況と素案）</h1>
+<nav class="nav"><a href="index.html">経路の比較</a><a href="dashboard.html">交通状態の比較</a><a href="emergency.html">緊急車両の到達</a><a class="on" href="flow.html">車の流れ</a></nav>
+<div class="src">計算した交通量どおりに、道路上にいる車の台数を並べて走らせた映像です。左が現況、右が素案（再開発後）。地図は2つ連動して動きます。</div></div>
+<div class="banner">区の公式推計ではありません。個人による簡易なシミュレーションで、<b>実際の交通を再現・予測するものではありません</b>。道路ごとの交通量（1時間あたりの平均）に比例して車の数を割り振り、決まった速さで流しているだけで、信号・右左折・渋滞での停止・個々の車の動きは入っていません。車1つ＝道路上にいる平均的な1台です。</div>
+<div class="card">
+<div class="bar"><button id="play" class="on">❚❚ 一時停止</button>
+<span class="src">速さ（実際の何倍か）</span><span id="spd"></span>
+<span class="src" style="margin-left:6px">車の色（その道路の混み具合 V/C）</span><span class="src"><i class="dot" style="background:#4ec9b0"></i>0.5未満<i class="dot" style="background:#ffd166"></i>0.5〜0.8<i class="dot" style="background:#ff6b6b"></i>0.8以上</span></div>
+<div class="diff" id="diff" style="margin-top:6px"></div></div>
+<div class="pair">
+<div class="pane"><div class="m" id="mA"></div><canvas id="cA"></canvas><div class="tag"><b>S0 現況</b><span class="n" id="nA"></span><span class="src">道路上の車（台）</span></div></div>
+<div class="pane"><div class="m" id="mB"></div><canvas id="cB"></canvas><div class="tag"><b>S2 素案（再開発後）</b><span class="n" id="nB"></span><span class="src">道路上の車（台）</span></div></div>
+</div>
+<div class="card"><h2>この映像の見方</h2>
+<ul style="margin:6px 0 0;padding-left:18px">
+<li>車の数は、計算結果の「総所要時間（台時間/時）」に合わせています。ある瞬間に道路上にいる車の台数の目安です。</li>
+<li>2つの画面の差（右−左）が、素案どおり再開発が行われたときの変化の目安です。差のほぼすべては、再開発で増える車によるものです。</li>
+<li>地図の拡大縮小は、PC では Ctrl（Mac は ⌘）を押しながらスクロール、スマホは2本指です。</li></ul>
+<p class="src">道路網：OpenStreetMap（© OpenStreetMap contributors, ODbL）を加工。交通量は、需要の置き方を変えた複数の計算のうち代表ケース（車の発生＝中、バスターミナル＝資料の約22台/時、二丁目西のバスターミナルなし）。実測で較正しておらず、数値は仮定にもとづく相対比較です。地図ライブラリ MapLibre GL（BSD）。</p></div>
+</main>
+<script src="vendor/maplibre-gl.js"></script><script src="data/l1.js"></script><script src="data/boundary.js"></script><script src="data/seko.js"></script>
+<script>
+const $=id=>document.getElementById(id),L=L1D.links,VHT=L1D.sens.dispersed;
+const rnd=s=>()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
+// 道路ごとの台数は交通量×長さに比例（走る速さは見た目用の一定値）。全体の台数は計算結果の総所要時間に合わせる
+function build(sc,seed){
+ const links=L[sc].filter(e=>e.q>0&&e.c.length>1).map(e=>{const cum=[0];let m=0;for(let i=1;i<e.c.length;i++){m+=Math.hypot((e.c[i][0]-e.c[i-1][0])*91000,(e.c[i][1]-e.c[i-1][1])*111000);cum.push(m)}
+  const v=28;return{c:e.c,cum,len:m,v,vc:e.vc,N:e.q*(m/1000)/v}});
+ const tot=links.reduce((a,l)=>a+l.N,0),k=VHT[sc].VHT/tot,R=rnd(seed),cars=[];
+ links.forEach(l=>{const n=l.N*k,c=Math.floor(n)+(R()<n-Math.floor(n)?1:0);for(let i=0;i<c;i++)cars.push({l,s:R()*l.len})});
+ return{links,cars,col:vc=>vc>=0.8?"#ff6b6b":vc>=0.5?"#ffd166":"#4ec9b0"}}
+const pos=(l,s)=>{let i=1;while(i<l.cum.length-1&&l.cum[i]<s)i++;const a=l.cum[i-1],b=l.cum[i],t=b>a?(s-a)/(b-a):0,p=l.c[i-1],q=l.c[i];return[p[0]+(q[0]-p[0])*t,p[1]+(q[1]-p[1])*t,Math.atan2((q[1]-p[1])*111000,(q[0]-p[0])*91000)]};
+const S=[{sc:"S0",map:"mA",cv:"cA",n:"nA"},{sc:"S2",map:"mB",cv:"cB",n:"nB"}];
+const style={version:8,sources:{},layers:[{id:"bg",type:"background",paint:{"background-color":getComputedStyle(document.body).getPropertyValue("--mapbg")||"#0e1417"}}]};
+const fc=f=>({type:"FeatureCollection",features:f}),ln=(c,p={})=>({type:"Feature",properties:p,geometry:{type:"LineString",coordinates:c}});
+const road=getComputedStyle(document.documentElement).getPropertyValue("--road").trim();
+S.forEach((o,i)=>{o.d=build(o.sc,11+i);$(o.n).textContent=o.d.cars.length.toLocaleString();
+ o.m=new maplibregl.Map({container:o.map,style,center:[139.6995,35.6545],zoom:14.3,attributionControl:{compact:true,customAttribution:"© OpenStreetMap contributors"},cooperativeGestures:true,
+  locale:{"CooperativeGesturesHandler.WindowsHelpText":"地図の拡大縮小は Ctrl を押しながらスクロール","CooperativeGesturesHandler.MacHelpText":"地図の拡大縮小は ⌘ を押しながらスクロール","CooperativeGesturesHandler.MobileHelpText":"地図は2本指で動かします"}});
+ o.cvs=$(o.cv);o.ctx=o.cvs.getContext("2d");
+ o.m.on("load",()=>{o.m.addSource("r",{type:"geojson",data:fc(o.d.links.map(l=>ln(l.c)))});o.m.addLayer({id:"r",type:"line",source:"r",paint:{"line-color":road,"line-width":["interpolate",["linear"],["zoom"],13,0.8,17,3]}});
+  o.m.addSource("sk",{type:"geojson",data:SEKO});o.m.addLayer({id:"sk",type:"line",source:"sk",paint:{"line-color":"#ff6b6b","line-width":2,"line-opacity":0.7}});
+  o.m.addSource("bd",{type:"geojson",data:BOUNDARY});o.m.addLayer({id:"bd",type:"line",source:"bd",paint:{"line-color":"#c77dff","line-width":2,"line-dasharray":[3,2],"line-opacity":0.7}})});});
+// 2つの地図を連動
+let lock=false;S.forEach((o,i)=>o.m.on("move",()=>{if(lock)return;lock=true;const p=S[1-i].m;p.jumpTo({center:o.m.getCenter(),zoom:o.m.getZoom(),bearing:0,pitch:0});lock=false}));
+$("diff").innerHTML=`素案−現況：道路上の車 <b>${(S[1].d.cars.length-S[0].d.cars.length>=0?"+":"−")+Math.abs(S[1].d.cars.length-S[0].d.cars.length).toLocaleString()}台</b>（${S[0].d.cars.length.toLocaleString()}台 → ${S[1].d.cars.length.toLocaleString()}台）`;
+let speed=10,playing=!matchMedia("(prefers-reduced-motion: reduce)").matches,last=performance.now();
+$("spd").innerHTML=[[5,"×5"],[10,"×10"],[30,"×30"]].map(([v,t])=>`<button data-v="${v}" class="${v===speed?"on":""}">${t}</button>`).join(" ");
+$("spd").onclick=e=>{const v=+e.target.dataset.v;if(v){speed=v;[...$("spd").children].forEach(b=>b.classList.toggle("on",+b.dataset.v===v))}};
+const setPlay=p=>{playing=p;$("play").textContent=p?"❚❚ 一時停止":"▶ 再生";$("play").classList.toggle("on",p)};$("play").onclick=()=>setPlay(!playing);setPlay(playing);
+function draw(o,dt){const m=o.m,cv=o.cvs,ctx=o.ctx,w=cv.clientWidth,h=cv.clientHeight,dpr=devicePixelRatio||1;
+ if(cv.width!==w*dpr||cv.height!==h*dpr){cv.width=w*dpr;cv.height=h*dpr}
+ ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
+ const z=m.getZoom(),r=Math.max(2.6,Math.min(9,1.15*Math.pow(2,z-14.6)*2.2)),big=z>=16.3;
+ for(const c of o.d.cars){if(playing){c.s+=c.l.v/3.6*dt*speed;if(c.s>=c.l.len)c.s-=c.l.len*Math.floor(c.s/c.l.len)}
+  const [x,y,a]=pos(c.l,c.s),p=m.project([x,y]);if(p.x<-10||p.y<-10||p.x>w+10||p.y>h+10)continue;
+  ctx.fillStyle=o.d.col(c.l.vc);
+  if(big){ctx.save();ctx.translate(p.x,p.y);ctx.rotate(-a);ctx.fillRect(-r*1.6,-r*0.8,r*3.2,r*1.6);ctx.restore()}else{ctx.beginPath();ctx.arc(p.x,p.y,r,0,6.2832);ctx.fill()}}}
+function tick(t){const dt=Math.min(0.1,(t-last)/1000);last=t;S.forEach(o=>draw(o,dt));requestAnimationFrame(tick)}
+requestAnimationFrame(tick);
+</script></body></html>
